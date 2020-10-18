@@ -305,5 +305,5 @@ Place these settings in `config/image-toolbox` file.
 * `usePlaceholders` - if placeholder should be generated if image is missing (asset object equals `null`). Default: `true`.
 * `placeholderClass` - CSS class added to `<img>` inside `<picture>` element if placeholder image is displayed. Default: `is-placeholder`.
 * `useImagerForSvg` - if imager should be used also for SVG images. Default: `false`.
-* `placeholderUrl` - URL of placeholder image. `{width}` and `{height}` in URL will be replaced with width andheight of placeholder. If this settings is empty, SVG placeholder will be used.
-* `transformLayouts` - read more in "Transform layouts" section of documentation.
+* `placeholderUrl` - URL of placeholder image. `{width}` and `{height}` in URL will be replaced with width and height of placeholder. If this settings is empty, SVG placeholder will be used.
+* `transformLayouts` - pre-defined transform settings. Read more in "Transform layouts" section of documentation.
