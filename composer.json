@@ -11,8 +11,8 @@
         "image toolbox"
     ],
     "support": {
-        "docs": "???",
-        "issues": "???"
+        "docs": "https://github.com/craft-snippets/Craft-image-toolbox/blob/master/README.md",
+        "issues": "https://github.com/craft-snippets/Craft-image-toolbox/issues"
     },
     "license": "MIT",
     "authors": [
@@ -34,8 +34,8 @@
         "handle": "image-toolbox",
         "developer": "Piotr Pogorzelski",
         "developerUrl": "http://craftsnippets.com/",
-        "documentationUrl": "???",
-        "changelogUrl": "???",
+        "documentationUrl": "https://github.com/craft-snippets/Craft-image-toolbox/blob/master/README.md",
+        "changelogUrl": "https://github.com/craft-snippets/Craft-image-toolbox/blob/master/CHANGELOG.md",
         "components": {
             "imageToolboxService": "craftsnippets\\imagetoolbox\\services\\ImageToolboxService"
         },
