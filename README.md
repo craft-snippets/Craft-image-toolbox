@@ -55,7 +55,7 @@ As you can see, `<picture>` has two `<source>` elements inside - one with **webp
 
 Transform settings passed to  `picture()` method can be identical to ones used by native Craft image transforms. Providing them is actually optional - you can use `picture()` method like this `{{craft.images.picture(someAsset)}}`. This would make sense if you just wanted to make use of webp variant creation functionality, without modyfying image in any other way.
 
-If [imager-x](https://plugins.craftcms.com/imager-x) (or [imager](https://plugins.craftcms.com/imager) plugin is installed, it will be used for image transforms. Thanks to that, you can easily switch your transform generation method without modifying your Twig templates. If you decide to use Imager, SVG images will still use native Craft transforms (unless you decide otherwise in plugin settings). This is because Imager [can cause problems if used with SVG](https://github.com/aelvan/Imager-Craft/issues/136).
+If [imager-x](https://plugins.craftcms.com/imager-x) (or [imager](https://plugins.craftcms.com/imager)) plugin is installed, it will be used for image transforms. Thanks to that, you can easily switch your transform generation method without modifying your Twig templates. If you decide to use Imager, SVG images will still use native Craft transforms (unless you decide otherwise in plugin settings). This is because Imager [can cause problems if used with SVG](https://github.com/aelvan/Imager-Craft/issues/136).
 
 ### Placeholders
 
