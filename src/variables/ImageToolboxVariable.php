@@ -25,10 +25,6 @@ use craft\elements\Asset;
 class ImageToolboxVariable
 {
 
-    public $service;
-    public function __construct(){
-        $this->service = new ImageToolboxService;
-    }
 
     public function picture(?Asset $image, array $transform = [], array $attributes = null): ?\Twig\Markup
     {
@@ -37,7 +33,7 @@ class ImageToolboxVariable
                 'transform' => is_null($transform) ? [] : $transform,
             ]
         ];
-        return $this->service->getPicture($image, $sources, $attributes);
+        return ImageToolboxService::getPicture($image, $sources, $attributes);
     }
 
     public function pictureMedia(?Asset $image, array $transforms, array $common_setings = null, array $attributes = null): ?\Twig\Markup
@@ -49,7 +45,7 @@ class ImageToolboxVariable
                 'transform' => !is_null($common_setings) ? array_merge($common_setings, $transform) : $transform,
             );
         }
-        return $this->service->getPicture($image, $sources, $attributes);
+        return ImageToolboxService::getPicture($image, $sources, $attributes);
     }
 
     public function pictureMax(?Asset $image, array $transforms, array $common_setings = null, array $attributes = null): ?\Twig\Markup
@@ -62,7 +58,7 @@ class ImageToolboxVariable
                 'transform' => !is_null($common_setings) ? array_merge($common_setings, $transform) : $transform,
             );
         }
-        return $this->service->getPicture($image, $sources, $attributes);
+        return ImageToolboxService::getPicture($image, $sources, $attributes);
     }
 
     public function pictureMin(?Asset $image, array $transforms, array $common_setings = null, array $attributes = null): ?\Twig\Markup
@@ -75,17 +71,17 @@ class ImageToolboxVariable
                 'transform' => !is_null($common_setings) ? array_merge($common_setings, $transform) : $transform,
             );
         }
-        return $this->service->getPicture($image, $sources, $attributes);
+        return ImageToolboxService::getPicture($image, $sources, $attributes);
     }
 
     public function placeholder(?array $transform = null): \Twig\Markup
     {
-        return $this->service->getPlaceholder($transform);
+        return ImageToolboxService::getPlaceholder($transform);
     }
 
     public function layout(?Asset $image, string $layout_handle): ?\Twig\Markup
     {
-        return $this->service->getLayout($image, $layout_handle);
+        return ImageToolboxService::getLayout($image, $layout_handle);
     }
 
 }
