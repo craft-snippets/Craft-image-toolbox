@@ -19,6 +19,7 @@ use craft\helpers\Template;
 use craft\helpers\Html;
 use Twig\Error\RuntimeError;
 
+use craft\elements\Asset;
 
 
 /**
@@ -32,12 +33,14 @@ class ImageToolboxService extends Component
 
     private $settings;
 
-    public function init(){
+    public function init()
+    {
         $this->settings = ImageToolbox::$plugin->getSettings();
         parent::init();
     }
 
-    private function canTransformImager($image){
+    private function canTransformImager(Asset $image): bool
+    {
         // imager has problems with svg
         if($image->getMimeType() == 'image/svg+xml' && $this->settings->useImagerForSvg == false){
             return false;
@@ -48,7 +51,8 @@ class ImageToolboxService extends Component
         return true;
     }
 
-    private function getTransformUrl($image, $transformSettings){
+    private function getTransformUrl(Asset $image, array $transformSettings): string
+    {
         
         // imager settings kept in transform settings
         $imager_settings = [];
@@ -77,7 +81,7 @@ class ImageToolboxService extends Component
     }
 
 
-    public function getPlaceholderUrl($transform)
+    public function getPlaceholderUrl(array $transform): \Twig\Markup
     {   
 
         if(isset($transform['width']) || isset($transform['height'])){
@@ -97,12 +101,18 @@ class ImageToolboxService extends Component
             }else{
                 $placeholder_url = 'data:image/svg+xml;charset=utf-8,' . rawurlencode('<svg xmlns="http://www.w3.org/2000/svg" width="'.$transform['width'].'" height="'.$transform['height'].'"/>');
             }
-
-            return Template::raw($placeholder_url);
+            $return_url = Template::raw($placeholder_url);
+            return $return_url;
         }
     }
 
-    public function getPlaceholder($transform){
+    public function getPlaceholder(?array $transform): \Twig\Markup
+    {
+
+        if($transform == null){
+            $transform = ['width' => 0, 'height' => 0];
+        }
+
         $src = $this->getPlaceholderUrl($transform);
         $html = Html::tag('img', '', [
                         'src' => $src,
@@ -113,7 +123,7 @@ class ImageToolboxService extends Component
 
 
 
-    public function getPicture($image = null, $sources = [], $attributes)
+    public function getPicture(?Asset $image = null, array $sources = [], ?array $attributes): ?\Twig\Markup
     {
 
         if(is_null($image) && $this->settings->usePlaceholders){
@@ -126,13 +136,22 @@ class ImageToolboxService extends Component
 
         // return markup
         if(!empty($html)){
-            $picture = Html::tag('picture', $html); 
-            return Template::raw($picture);
+            $picture = Html::tag('picture', $html);
+            $raw_html = Template::raw($picture);
+            return $raw_html;
+        }else{
+            return null;
         }
 
     }
 
-    protected function canAddWebpSource($image, $transform){
+    protected function serverSupportsWebp(): bool
+    {
+        return Craft::$app->getImages()->getSupportsWebP() || $this->settings->forceWebp;
+    }
+
+    protected function canAddWebpSource(Asset $image, array $transform): bool
+    {
 
         // if image is webp already and we dont want to transform it into other format
         if($image->getMimeType() == 'image/webp' && !isset($transform['format'])){
@@ -150,7 +169,7 @@ class ImageToolboxService extends Component
         }
 
         // if global settings allow it, server supports webp and iamge is not svg 
-        if($this->settings->useWebp && Craft::$app->getImages()->getSupportsWebP() && $image->getMimeType() != 'image/svg+xml'){
+        if($this->settings->useWebp && $this->serverSupportsWebp() && $image->getMimeType() != 'image/svg+xml'){
             return true;
         }
 
@@ -158,7 +177,8 @@ class ImageToolboxService extends Component
     }
 
 
-    protected function getSourcesMarkup($image, $sources = [], $attributes){
+    protected function getSourcesMarkup(Asset $image, array $sources = [], $attributes): \Twig\Markup
+    {
 
         $html_string = '';
 
@@ -215,12 +235,14 @@ class ImageToolboxService extends Component
         $html_string .= Html::tag('img', '', $fallback_attributes); 
         $html_string .= "\n";
 
-        return $html_string;
+        $raw_html = Template::raw($html_string);
+        return $raw_html;
 
     }
 
 
-    protected function getPlaceholderSourcesMarkup($sources = [], $attributes){
+    protected function getPlaceholderSourcesMarkup(array $sources = [], ?array $attributes): \Twig\Markup
+    {
 
             $html_string = '';
 
@@ -262,7 +284,8 @@ class ImageToolboxService extends Component
             return Template::raw($html_string);
     }
 
-    public function getLayout($image, $layout_handle){
+    public function getLayout(?Asset $image, $layout_handle): ?\Twig\Markup
+    {
 
         if(!isset($this->settings->transformLayouts[$layout_handle])){
             throw new RuntimeError(sprintf('Transform layout with handle "%s" is not defined in settings.', $layout_handle));

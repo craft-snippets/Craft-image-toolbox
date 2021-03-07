@@ -15,7 +15,7 @@ use craftsnippets\imagetoolbox\ImageToolbox;
 use Craft;
 
 use craftsnippets\imagetoolbox\services\ImageToolboxService;
-
+use craft\elements\Asset;
 
 /**
  * @author    Piotr Pogorzelski
@@ -25,16 +25,13 @@ use craftsnippets\imagetoolbox\services\ImageToolboxService;
 class ImageToolboxVariable
 {
 
-    // public function init(){
-    //     exit();
-    // }
-
     public $service;
     public function __construct(){
         $this->service = new ImageToolboxService;
     }
 
-    public function picture($image, $transform = [], $attributes = null){
+    public function picture(?Asset $image, array $transform = [], array $attributes = null): ?\Twig\Markup
+    {
         $sources = [
             [
                 'transform' => is_null($transform) ? [] : $transform,
@@ -43,7 +40,8 @@ class ImageToolboxVariable
         return $this->service->getPicture($image, $sources, $attributes);
     }
 
-    public function pictureMedia($image, $transforms, $common_setings = null, $attributes = null){
+    public function pictureMedia(?Asset $image, array $transforms, array $common_setings = null, array $attributes = null): ?\Twig\Markup
+    {
         $sources = [];
         foreach ($transforms as $media => $transform) {
             $sources[] = Array(
@@ -54,7 +52,8 @@ class ImageToolboxVariable
         return $this->service->getPicture($image, $sources, $attributes);
     }
 
-    public function pictureMax($image, $transforms, $common_setings = null, $attributes = null){
+    public function pictureMax(?Asset $image, array $transforms, array $common_setings = null, array $attributes = null): ?\Twig\Markup
+    {
         ksort($transforms);
         $sources = [];
         foreach ($transforms as $media => $transform) {
@@ -66,7 +65,8 @@ class ImageToolboxVariable
         return $this->service->getPicture($image, $sources, $attributes);
     }
 
-    public function pictureMin($image, $transforms, $common_setings = null, $attributes = null){
+    public function pictureMin(?Asset $image, array $transforms, array $common_setings = null, array $attributes = null): ?\Twig\Markup
+    {
         krsort($transforms);
         $sources = [];
         foreach ($transforms as $media => $transform) {
@@ -78,11 +78,13 @@ class ImageToolboxVariable
         return $this->service->getPicture($image, $sources, $attributes);
     }
 
-    public function placeholder(array $transform){
+    public function placeholder(?array $transform = null): \Twig\Markup
+    {
         return $this->service->getPlaceholder($transform);
     }
 
-    public function layout($image, $layout_handle){
+    public function layout(?Asset $image, string $layout_handle): ?\Twig\Markup
+    {
         return $this->service->getLayout($image, $layout_handle);
     }
 
