@@ -152,6 +152,11 @@ class ImageToolboxService extends Component
     public static function getPicture(?Asset $image = null, array $sources = [], ?array $attributes): ?\Twig\Markup
     {
 
+        // if using non image asset
+        if($image->kind != 'image'){
+            throw new RuntimeError('Asset must be image.');
+        }
+
         if(is_null($image) && ImageToolbox::$plugin->getSettings()->usePlaceholders){
             // placeholder
             $html = self::getPlaceholderSourcesMarkup($sources, $attributes);
