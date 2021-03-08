@@ -1,5 +1,7 @@
 # Method list
 
+For detailed information about each method, please visit [Plugin functionality](Basic) page.
+
 * `craft.images.picture(image, transform, htmlAttributes)` - generates `<picture>` element.
 
 * `craft.images.pictureMedia(image, transforms, commonSettings, htmlAttributes)` - generates `<picture>` element from multiple image transforms. Breakpoints are set in format like `(max-width: 600px)`.

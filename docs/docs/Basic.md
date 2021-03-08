@@ -57,10 +57,10 @@ You can also apply HTML attributes to `<img>` within `<picture>` - for example C
 
 ## Webp variants of images
 
-Generating `webp` version of image actually depends on a few things. Webp variant will be outputted along with image in original format if:
+Generating **webp** version of image actually depends on a few things. Webp variant will be outputted along with image in original format if:
 
 * Provided image is not in SVG format. It would not make much sense to transform SVG which is a vector graphic format into webp which is used for raster images.
-* Our server supports webp image transforms. Webp support can be tested by using Craft `craft.app.images.supportsWebP()` method in your Twig templates. If Craft somehow wrongly detects lack of webp support, while server actually does suport it, webp generation can be forced by setting `forceWebp` to `true` in config.
+* Our server supports webp image transforms. Webp support can be tested by using Craft `craft.app.images.supportsWebP()` method in your Twig templates - same method that Image toolbox uses internally. If Craft somehow wrongly detects lack of webp support, while server actually does suport it, webp generation can be forced by setting `forceWebp` to `true` in plugin config.
 * Our source image is not already webp - no need to create second webp variant of image that is already webp. If however we want to transform webp to other format, both webp and other format variants will be generated.
 * We didn't disabled webp generation for this specific picture by adding `useWebp` set to `false` in transform setting. 
 * We didn't disabled webp generation globally in plugin settings file using `useWebp` setting.
