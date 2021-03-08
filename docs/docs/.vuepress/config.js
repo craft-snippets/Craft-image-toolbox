@@ -12,7 +12,8 @@ module.exports = {
         displayAllHeaders: true,
         sidebar: [
             ['/', 'Introduction'],
-            ['/Basic', 'Basic Usage'],
+            ['/Quick', 'Quick start'],
+            ['/Basic', 'Plugin functionality'],
             ['/Methods', 'Methods list'],
             ['/Settings', 'Settings'],
         ],
