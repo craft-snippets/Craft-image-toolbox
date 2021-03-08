@@ -31,6 +31,12 @@ class ImageToolboxService extends Component
 {
 
 
+    /**
+     * If image can be transformed using Imager.
+     *
+     * @param Asset $image
+     * @return bool
+     */
     private static function canTransformImager(Asset $image): bool
     {
         // imager has problems with svg
@@ -43,6 +49,15 @@ class ImageToolboxService extends Component
         return true;
     }
 
+    /**
+     * Returns URL of transformed image.
+     *
+     * @param Asset $image
+     * @param array $transformSettings
+     * @return string
+     * @throws \spacecatninja\imagerx\exceptions\ImagerException
+     * @throws \yii\base\InvalidConfigException
+     */
     private static function getTransformUrl(Asset $image, array $transformSettings): string
     {
         
@@ -73,7 +88,13 @@ class ImageToolboxService extends Component
     }
 
 
-    public static function getPlaceholderUrl(array $transform): \Twig\Markup
+    /**
+     * Returns URL of placeholder.
+     *
+     * @param array $transform
+     * @return \Twig\Markup
+     */
+    private static function getPlaceholderUrl(array $transform): \Twig\Markup
     {   
 
         if(isset($transform['width']) || isset($transform['height'])){
@@ -98,6 +119,12 @@ class ImageToolboxService extends Component
         }
     }
 
+    /**
+     * Returns markup of placeholder img tag to be returned into template.
+     *
+     * @param array|null $transform
+     * @return \Twig\Markup
+     */
     public static function getPlaceholder(?array $transform): \Twig\Markup
     {
 
@@ -114,7 +141,14 @@ class ImageToolboxService extends Component
     }
 
 
-
+    /**
+     * Returns whole markup of picture to be outputted into template.
+     *
+     * @param Asset|null $image
+     * @param array $sources
+     * @param array|null $attributes
+     * @return \Twig\Markup|null
+     */
     public static function getPicture(?Asset $image = null, array $sources = [], ?array $attributes): ?\Twig\Markup
     {
 
@@ -137,11 +171,23 @@ class ImageToolboxService extends Component
 
     }
 
+    /**
+     * Checks of server webp support.
+     *
+     * @return bool
+     */
     private static function serverSupportsWebp(): bool
     {
         return Craft::$app->getImages()->getSupportsWebP() || ImageToolbox::$plugin->getSettings()->forceWebp;
     }
 
+    /**
+     * Checks if webp version of image can be generated.
+     *
+     * @param Asset $image
+     * @param array $transform
+     * @return bool
+     */
     private static function canAddWebpSource(Asset $image, array $transform): bool
     {
 
@@ -169,6 +215,16 @@ class ImageToolboxService extends Component
     }
 
 
+    /**
+     * Returns markup of picture sources.
+     *
+     * @param Asset $image
+     * @param array $sources
+     * @param $attributes
+     * @return \Twig\Markup
+     * @throws \spacecatninja\imagerx\exceptions\ImagerException
+     * @throws \yii\base\InvalidConfigException
+     */
     private static function getSourcesMarkup(Asset $image, array $sources = [], $attributes): \Twig\Markup
     {
 
@@ -233,6 +289,13 @@ class ImageToolboxService extends Component
     }
 
 
+    /**
+     * Returns markup of picture (that is placeholder) sources.
+     *
+     * @param array $sources
+     * @param array|null $attributes
+     * @return \Twig\Markup
+     */
     private static function getPlaceholderSourcesMarkup(array $sources = [], ?array $attributes): \Twig\Markup
     {
 
@@ -276,7 +339,15 @@ class ImageToolboxService extends Component
             return Template::raw($html_string);
     }
 
-    private static function getLayout(?Asset $image, $layout_handle): ?\Twig\Markup
+    /**
+     * Returns whole markup of picture generated from transform layout to be outputted into template.
+     *
+     * @param Asset|null $image
+     * @param $layout_handle
+     * @return \Twig\Markup|null
+     * @throws RuntimeError
+     */
+    public static function getLayout(?Asset $image, $layout_handle): ?\Twig\Markup
     {
 
         if(!isset(ImageToolbox::$plugin->getSettings()->transformLayouts[$layout_handle])){
