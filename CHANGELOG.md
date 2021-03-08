@@ -2,7 +2,8 @@
 
 ## 1.1.0 - 2021.03.09
 ### Added
-* Added `forceWebp` option to settings.
+* Added `forceWebp` config setting.
+* Added `forcePlaceholders` config setting.
 
 ### Fixed
 * Code refactoring

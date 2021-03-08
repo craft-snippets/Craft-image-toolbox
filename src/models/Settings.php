@@ -31,5 +31,6 @@ class Settings extends Model
     public $useImagerForSvg = false;
     public $placeholderUrl = null;
     public $transformLayouts = [];
+    public $forcePlaceholders = false;
 
 }

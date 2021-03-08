@@ -157,7 +157,7 @@ class ImageToolboxService extends Component
             throw new RuntimeError('Asset must be image.');
         }
 
-        if(is_null($image) && ImageToolbox::$plugin->getSettings()->usePlaceholders){
+        if(ImageToolbox::$plugin->getSettings()->forcePlaceholders == true || (is_null($image) && ImageToolbox::$plugin->getSettings()->usePlaceholders)){
             // placeholder
             $html = self::getPlaceholderSourcesMarkup($sources, $attributes);
         }elseif(!is_null($image)){
