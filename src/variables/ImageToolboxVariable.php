@@ -38,7 +38,7 @@ class ImageToolboxVariable
     {
         $sources = [
             [
-                'transform' => is_null($transform) ? [] : $transform,
+                'transform' => $transform,
             ]
         ];
         return ImageToolboxService::getPicture($image, $sources, $attributes);
