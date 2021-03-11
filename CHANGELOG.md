@@ -1,6 +1,6 @@
 # Image toolbox Changelog
 
-## 1.1.0 - 2021.03.09
+## 1.1.0 - 2021.03.11
 ### Added
 * Added `forceWebp` config setting.
 * Added `forcePlaceholders` config setting.
