@@ -47,17 +47,17 @@ class ImageToolbox extends Plugin
     /**
      * @var string
      */
-    public $schemaVersion = '1.0.0';
+    public string $schemaVersion = '1.0.0';
 
     /**
      * @var bool
      */
-    public $hasCpSettings = false;
+    public bool $hasCpSettings = false;
 
     /**
      * @var bool
      */
-    public $hasCpSection = false;
+    public bool $hasCpSection = false;
 
     public function init()
     {
@@ -75,7 +75,7 @@ class ImageToolbox extends Plugin
 
     }
 
-    protected function createSettingsModel()
+    protected function createSettingsModel(): ?craft\base\Model
     {
         return new Settings();
     }

@@ -94,29 +94,33 @@ class ImageToolboxService extends Component
      * @param array $transform
      * @return \Twig\Markup
      */
-    private static function getPlaceholderUrl(array $transform): \Twig\Markup
+    private static function getPlaceholderUrl(?array $transform): \Twig\Markup
     {   
-
-        if(isset($transform['width']) || isset($transform['height'])){
-
-            // if only width or height provided, create square
-            if(!isset($transform['width'])){
-                $transform['width'] = $transform['height'];
-            }
-            if(!isset($transform['height'])){
-                $transform['height'] = $transform['width'];
-            }        
-
-            $placeholder_url = ImageToolbox::$plugin->getSettings()->placeholderUrl;
-            if(is_string($placeholder_url) && !empty($placeholder_url)){
-                $placeholder_url = str_replace('{width}', $transform['width'], $placeholder_url);
-                $placeholder_url = str_replace('{height}', $transform['height'], $placeholder_url);
-            }else{
-                $placeholder_url = 'data:image/svg+xml;charset=utf-8,' . rawurlencode('<svg xmlns="http://www.w3.org/2000/svg" width="'.$transform['width'].'" height="'.$transform['height'].'"/>');
-            }
-            $return_url = Template::raw($placeholder_url);
-            return $return_url;
+        if(is_null($transform) || 
+            (
+                is_array($transform) && !isset($transform['width']) && !isset($transform['height'])
+            ) 
+        ){
+            $transform = ['width' => 0, 'height' => 0];
         }
+
+        // if only width or height provided, create square
+        if(!isset($transform['width'])){
+            $transform['width'] = $transform['height'];
+        }
+        if(!isset($transform['height'])){
+            $transform['height'] = $transform['width'];
+        }        
+
+        $placeholder_url = ImageToolbox::$plugin->getSettings()->placeholderUrl;
+        if(is_string($placeholder_url) && !empty($placeholder_url)){
+            $placeholder_url = str_replace('{width}', $transform['width'], $placeholder_url);
+            $placeholder_url = str_replace('{height}', $transform['height'], $placeholder_url);
+        }else{
+            $placeholder_url = 'data:image/svg+xml;charset=utf-8,' . rawurlencode('<svg xmlns="http://www.w3.org/2000/svg" width="'.$transform['width'].'" height="'.$transform['height'].'"/>');
+        }
+        $return_url = Template::raw($placeholder_url);
+        return $return_url;
     }
 
     /**
@@ -127,10 +131,6 @@ class ImageToolboxService extends Component
      */
     public static function getPlaceholder(?array $transform): \Twig\Markup
     {
-
-        if($transform == null){
-            $transform = ['width' => 0, 'height' => 0];
-        }
 
         $src = self::getPlaceholderUrl($transform);
         $html = Html::tag('img', '', [
@@ -263,7 +263,7 @@ class ImageToolboxService extends Component
                 $html_string .= "\n";
                 $html_string .= Html::tag('source', '', [
                     'media' => $source['media'] ?? null,
-                    'srcset' => self::getPlaceholderUrl(['width' => 0, 'height' => 0]),
+                    'srcset' => self::getPlaceholderUrl(null),
                 ]);                     
             }
         }
@@ -274,7 +274,7 @@ class ImageToolboxService extends Component
         if(!is_null($fallback_transform)){
             $fallback_src = self::getTransformUrl($image, $fallback_transform);
          }else{
-            $fallback_src = self::getPlaceholderUrl(['width' => 0, 'height' => 0]);
+            $fallback_src = self::getPlaceholderUrl(null);
          }
 
         $fallback_attributes = [

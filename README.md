@@ -1,4 +1,4 @@
-# Image toolbox plugin for Craft CMS 3.x
+# Image toolbox plugin for Craft CMS 4.x
 
 Image Toolbox is Craft CMS plugin that helps with the use of image transforms in templates.
 
