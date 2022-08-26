@@ -41,7 +41,7 @@ class ImageToolboxVariable
                 'transform' => $transform,
             ]
         ];
-        return ImageToolboxService::getPicture($image, $sources, $attributes);
+        return ImageToolbox::getInstance()->imageToolbox->getPicture($image, $sources, $attributes);
     }
 
     /**
@@ -63,7 +63,7 @@ class ImageToolboxVariable
                 'transform' => !is_null($common_setings) ? array_merge($common_setings, $transform) : $transform,
             );
         }
-        return ImageToolboxService::getPicture($image, $sources, $attributes);
+        return ImageToolbox::getInstance()->imageToolbox->getPicture($image, $sources, $attributes);
     }
 
     /**
@@ -86,7 +86,7 @@ class ImageToolboxVariable
                 'transform' => !is_null($common_setings) ? array_merge($common_setings, $transform) : $transform,
             );
         }
-        return ImageToolboxService::getPicture($image, $sources, $attributes);
+        return ImageToolbox::getInstance()->imageToolbox->getPicture($image, $sources, $attributes);
     }
 
     /**
@@ -109,7 +109,7 @@ class ImageToolboxVariable
                 'transform' => !is_null($common_setings) ? array_merge($common_setings, $transform) : $transform,
             );
         }
-        return ImageToolboxService::getPicture($image, $sources, $attributes);
+        return ImageToolbox::getInstance()->imageToolbox->getPicture($image, $sources, $attributes);
     }
 
     /**
@@ -120,7 +120,7 @@ class ImageToolboxVariable
      */
     public function placeholder(?array $transform = null): \Twig\Markup
     {
-        return ImageToolboxService::getPlaceholder($transform);
+        return ImageToolbox::getInstance()->imageToolbox->getPlaceholder($transform);
     }
 
     /**
@@ -133,7 +133,12 @@ class ImageToolboxVariable
      */
     public function layout(?Asset $image, string $layout_handle): ?\Twig\Markup
     {
-        return ImageToolboxService::getLayout($image, $layout_handle);
+        return ImageToolbox::getInstance()->imageToolbox->getLayout($image, $layout_handle);
+    }
+
+    public function getImage(array $sources, array $htmlAttributes = []): ?\Twig\Markup
+    {
+        return ImageToolbox::getInstance()->imageToolbox->getImage($sources, $htmlAttributes);
     }
 
 }
