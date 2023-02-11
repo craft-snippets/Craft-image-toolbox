@@ -190,7 +190,7 @@ class ImageToolboxService extends Component
 
             // if using non image asset
             if($image->kind != 'image'){
-                throw new RuntimeError('Asset must be image.');
+                return $this->throwException('Asset must be image.', null);
             }
             
             // picture element
@@ -388,18 +388,18 @@ class ImageToolboxService extends Component
     {
 
         if(!isset(ImageToolbox::$plugin->getSettings()->transformLayouts[$layout_handle])){
-            throw new RuntimeError(sprintf('Transform layout with handle "%s" is not defined in settings.', $layout_handle));
+            return $this->throwException(sprintf('Transform layout with handle "%s" is not defined in settings.', $layout_handle), null);
         }
 
         $layout = ImageToolbox::$plugin->getSettings()->transformLayouts[$layout_handle];
 
         if(!isset($layout['variants'])){
-            throw new RuntimeError(sprintf('Transform layout with handle "%s" does not have "variants" property defined.', $layout_handle));
+            return $this->throwException(sprintf('Transform layout with handle "%s" does not have "variants" property defined.', $layout_handle), null);
         }
 
         foreach ($layout['variants'] as $single_variant) {
             if(!isset($single_variant['transform'])){
-                throw new RuntimeError(sprintf('Transform layout with handle "%s" - one of variants does not have transform defined.', $layout_handle));
+                return $this->throwException(sprintf('Transform layout with handle "%s" - one of variants does not have transform defined.', $layout_handle), null);
             }
         }
 
@@ -439,10 +439,7 @@ class ImageToolboxService extends Component
 
             // if using non image asset
             if(!is_null($singleSource['asset']) && $singleSource['asset']->kind != 'image'){
-                if(ImageToolbox::$plugin->getSettings()->suppressExceptions == true){
-                    return null;
-                }
-                throw new RuntimeError('One of the assets passed to getImage() function is not an image.');
+                return $this->throwException('One of the assets passed to getImage() function is not an image.', null);
             }
 
             // if transform not set, use image without transform
@@ -575,11 +572,7 @@ class ImageToolboxService extends Component
         // if source image does not exist
         // checked first, so even if there is no need to generate new placeholder file, we are still informed that source file is missing and no suprised later when we try to gen new placeholder size
         if(!file_exists($placeholderSourcePath)){
-            if(ImageToolbox::$plugin->getSettings()->suppressExceptions == true){
-                return '';
-            }else{
-                throw new RuntimeError('Placeholder file source "' . $placeholderSourcePath .  '" does not exist');
-            }
+            return $this->throwException('Placeholder file source "' . $placeholderSourcePath .  '" does not exist', '');
         }
 
         // placeholder directory
@@ -656,6 +649,15 @@ class ImageToolboxService extends Component
         }
         $this->_imagineInstance = $instance;
         return $instance;
+    }
+
+    private function throwException($text, $return)
+    {
+        if(ImageToolbox::$plugin->getSettings()->suppressExceptions == true){
+            return $return;
+        }else{
+            throw new RuntimeError($text);
+        }  
     }
 
 }
