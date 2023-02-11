@@ -136,9 +136,9 @@ class ImageToolboxVariable
         return ImageToolbox::getInstance()->imageToolbox->getLayout($image, $layout_handle);
     }
 
-    public function getImage(array $sources, array $htmlAttributes = []): ?\Twig\Markup
+    public function pictureSources(array $sources, array $htmlAttributes = []): ?\Twig\Markup
     {
-        return ImageToolbox::getInstance()->imageToolbox->getImage($sources, $htmlAttributes);
+        return ImageToolbox::getInstance()->imageToolbox->getPictureSources($sources, $htmlAttributes);
     }
 
 }

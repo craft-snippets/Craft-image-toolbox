@@ -39,4 +39,5 @@ class Settings extends Model
     public $filePlaceholderBackgroundOpacity = null;
     public $filePlaceholderDirectory = 'placeholders';
 
+    public $suppressExceptions = false;
 }

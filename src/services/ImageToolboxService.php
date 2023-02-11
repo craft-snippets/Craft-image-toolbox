@@ -407,7 +407,7 @@ class ImageToolboxService extends Component
 
     }
 
-    public function getImage(array $sources, array $htmlAttributes): ?\Twig\Markup
+    public function getPictureSources(array $sources, array $htmlAttributes): ?\Twig\Markup
     {
         $htmlString = '';
 
@@ -439,6 +439,9 @@ class ImageToolboxService extends Component
 
             // if using non image asset
             if(!is_null($singleSource['asset']) && $singleSource['asset']->kind != 'image'){
+                if(ImageToolbox::$plugin->getSettings()->suppressExceptions == true){
+                    return null;
+                }
                 throw new RuntimeError('One of the assets passed to getImage() function is not an image.');
             }
 
@@ -561,6 +564,24 @@ class ImageToolboxService extends Component
 
     private function getPlaceholderUrlTypeFile($transform)
     {
+
+        // source file path
+        if(!is_null(ImageToolbox::$plugin->getSettings()->filePlaceholderPath)){
+            $placeholderSourcePath = Craft::getAlias('@root') . DIRECTORY_SEPARATOR . ImageToolbox::$plugin->getSettings()->filePlaceholderPath;
+        }else{
+            $placeholderSourcePath = Craft::getAlias('@craftsnippets/imagetoolbox') . DIRECTORY_SEPARATOR . self::PLACEHOLDER_DEFAULT_FILE;            
+        }
+
+        // if source image does not exist
+        // checked first, so even if there is no need to generate new placeholder file, we are still informed that source file is missing and no suprised later when we try to gen new placeholder size
+        if(!file_exists($placeholderSourcePath)){
+            if(ImageToolbox::$plugin->getSettings()->suppressExceptions == true){
+                return '';
+            }else{
+                throw new RuntimeError('Placeholder file source "' . $placeholderSourcePath .  '" does not exist');
+            }
+        }
+
         // placeholder directory
         $placeholderDirectory = ImageToolbox::$plugin->getSettings()->filePlaceholderDirectory;
         $placeholderDirectoryPath = Craft::getAlias('@webroot') . '/' . $placeholderDirectory;
@@ -570,7 +591,7 @@ class ImageToolboxService extends Component
         
         // return file if exists
         $filename = $transform['width'] . 'x' . $transform['height'];
-        $placeholderFilePath = $placeholderDirectoryPath . '/' . $filename . '.png';
+        $placeholderFilePath = $placeholderDirectoryPath . DIRECTORY_SEPARATOR . $filename . '.png';
         $placeholderUrl = Craft::getAlias('@web') . '/' . $placeholderDirectory . '/' . $filename . '.png';
         if(file_exists($placeholderFilePath)){
             return $placeholderUrl;
@@ -580,16 +601,9 @@ class ImageToolboxService extends Component
         $backgroundColor = !is_null(ImageToolbox::$plugin->getSettings()->filePlaceholderBackground) ? ImageToolbox::$plugin->getSettings()->filePlaceholderBackground : self::PLACEHOLDER_DEFAULT_BACKGROUND;
         $backgroundOpacity = !is_null(ImageToolbox::$plugin->getSettings()->filePlaceholderBackgroundOpacity) ? ImageToolbox::$plugin->getSettings()->filePlaceholderBackgroundOpacity : self::PLACEHOLDER_DEFAULT_OPACITY;
 
-        // source file path
-        if(!is_null(ImageToolbox::$plugin->getSettings()->filePlaceholderPath)){
-            $placeholderPath = Craft::getAlias('@root') . '/' . ImageToolbox::$plugin->getSettings()->filePlaceholderPath;
-        }else{
-            $placeholderPath = Craft::getAlias('@craftsnippets/imagetoolbox') . '/' . self::PLACEHOLDER_DEFAULT_FILE;            
-        }
-
         // image object
         $images = Craft::$app->getImages();
-        $rasterObj = $images->loadImage($placeholderPath, true);
+        $rasterObj = $images->loadImage($placeholderSourcePath, true);
         $rasterObj->scaleToFit($transform['width'], $transform['height'], false); // craft function
         $imageInstance = $rasterObj->getImagineImage(); // imagine function
 
