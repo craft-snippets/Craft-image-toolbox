@@ -34,7 +34,7 @@ class ImageToolboxVariable
      * @param array|null $attributes
      * @return \Twig\Markup|null
      */
-    public function picture(?Asset $image, array $transform = [], array $attributes = null): ?\Twig\Markup
+    public function picture(?Asset $image, array|string $transform = [], array $attributes = null): ?\Twig\Markup
     {
         $sources = [
             [
@@ -118,7 +118,7 @@ class ImageToolboxVariable
      * @param array|null $transform
      * @return \Twig\Markup
      */
-    public function placeholder(?array $transform = null): \Twig\Markup
+    public function placeholder(string|array|null $transform = null): \Twig\Markup
     {
         return ImageToolbox::getInstance()->imageToolbox->getPlaceholder($transform);
     }

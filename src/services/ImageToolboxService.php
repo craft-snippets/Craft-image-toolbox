@@ -161,9 +161,10 @@ class ImageToolboxService extends Component
      * @param array|null $transform
      * @return \Twig\Markup
      */
-    public function getPlaceholder(?array $transform): \Twig\Markup
+    public function getPlaceholder(array|string|null $transform): \Twig\Markup
     {
-        $src = $this->getPlaceholderUrl($transform);
+        $transformSettings = $this->getTransformSettings($transform);
+        $src = $this->getPlaceholderUrl($transformSettings);
         $html = Html::tag('img', '', [
                         'src' => $src,
                         'class' => ImageToolbox::$plugin->getSettings()->placeholderClass,
@@ -182,6 +183,12 @@ class ImageToolboxService extends Component
      */
     public function getPicture(?Asset $image = null, array $sources = [], ?array $attributes): ?\Twig\Markup
     {
+
+        // transform array or db transform handle
+        $sources = array_map(function($single){
+            $single['transform'] = $this->getTransformSettings($single['transform']);
+            return $single;
+        }, $sources);
 
         if(ImageToolbox::$plugin->getSettings()->forcePlaceholders == true || (is_null($image) && ImageToolbox::$plugin->getSettings()->usePlaceholders)){
             // placeholder
@@ -432,6 +439,11 @@ class ImageToolboxService extends Component
             }
         }
 
+        $sources = array_map(function($single){
+            $single['transform'] = $this->getTransformSettings($single['transform']);
+            return $single;
+        }, $sources);
+
 
         foreach ($sources as $singleSource) {
 
@@ -479,11 +491,13 @@ class ImageToolboxService extends Component
             // regular tranform
             if(!is_null($singleSource['transform'])){
 
+                $transfromSettings = $singleSource['transform'];
+
                 // webp version
-                if(!is_null($singleSource['asset']) && $this->canAddWebpSource($singleSource['asset'], $singleSource['transform'])){
+                if(!is_null($singleSource['asset']) && $this->canAddWebpSource($singleSource['asset'], $transfromSettings)){
 
                     // force webp
-                    $transformWebp = array_merge($singleSource['transform'], ['format' => 'webp']);
+                    $transformWebp = array_merge($transfromSettings, ['format' => 'webp']);
 
                     // transform asset or show placeholder
                     $srcsetWebp = $this->getPlaceholderOrTransform($singleSource['asset'], $transformWebp);
@@ -505,7 +519,7 @@ class ImageToolboxService extends Component
                 // regular version
 
                 // transform asset or show placeholder
-                $srcsetRegular = $this->getPlaceholderOrTransform($singleSource['asset'], $singleSource['transform']);
+                $srcsetRegular = $this->getPlaceholderOrTransform($singleSource['asset'], $transfromSettings);
                 $sourceAttributes = [
                     'media' => $mediaBreakpoint,
                     'srcset' => $srcsetRegular,
@@ -513,8 +527,8 @@ class ImageToolboxService extends Component
                 
                 // mime type
                 if(!is_null($singleSource['asset'])){
-                    if(isset($singleSource['transform']['format'])){
-                        $sourceAttributes['type'] = 'image/'.$singleSource['transform']['format'];
+                    if(isset($transfromSettings['format'])){
+                        $sourceAttributes['type'] = 'image/'.$transfromSettings['format'];
                     }else{
                         $sourceAttributes['type'] = $singleSource['asset']->getMimeType();
                     }
@@ -657,6 +671,29 @@ class ImageToolboxService extends Component
         }
         $this->_imagineInstance = $instance;
         return $instance;
+    }
+
+    private function getTransformSettings(array|string|null $settings)
+    {
+
+        if(is_string($settings)){
+            $transformObj = Craft::$app->imageTransforms->getTransformByHandle($settings);
+
+            if(is_null($transformObj)){
+                // returns empty array so image is not transformed is transfiorm with that handle missing
+                return $this->throwException("Transform with handle \"$settings\" does not exist", []);
+            }
+
+            $transformArr = $transformObj->toArray();
+            unset($transformArr['id']);
+            unset($transformArr['name']);
+            unset($transformArr['handle']);
+            unset($transformArr['parameterChangeTime']);
+            unset($transformArr['uid']);
+            return $transformArr;
+        }else{
+            return $settings;
+        }
     }
 
     private function throwException($text, $return)
