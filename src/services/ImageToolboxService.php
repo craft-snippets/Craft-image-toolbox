@@ -384,30 +384,38 @@ class ImageToolboxService extends Component
      * @return \Twig\Markup|null
      * @throws RuntimeError
      */
-    public function getLayout(?Asset $image, $layout_handle): ?\Twig\Markup
+    public function getLayout(object|array|null $images, string $layoutHandle): ?\Twig\Markup
     {
 
-        if(!isset(ImageToolbox::$plugin->getSettings()->transformLayouts[$layout_handle])){
-            return $this->throwException(sprintf('Transform layout with handle "%s" is not defined in settings.', $layout_handle), null);
+        if(!isset(ImageToolbox::$plugin->getSettings()->transformLayouts[$layoutHandle])){
+            return $this->throwException(sprintf('Transform layout with handle "%s" is not defined in settings.', $layoutHandle), null);
         }
 
-        $layout = ImageToolbox::$plugin->getSettings()->transformLayouts[$layout_handle];
+        $layout = ImageToolbox::$plugin->getSettings()->transformLayouts[$layoutHandle];
 
         if(!isset($layout['variants'])){
-            return $this->throwException(sprintf('Transform layout with handle "%s" does not have "variants" property defined.', $layout_handle), null);
+            return $this->throwException(sprintf('Transform layout with handle "%s" does not have "variants" property defined.', $layoutHandle), null);
         }
 
-        foreach ($layout['variants'] as $single_variant) {
-            if(!isset($single_variant['transform'])){
-                return $this->throwException(sprintf('Transform layout with handle "%s" - one of variants does not have transform defined.', $layout_handle), null);
+        // get images
+        if(!is_array($images)){
+            $images = [$images];
+        }
+
+        // add images to variants
+        foreach ($layout['variants'] as $index => $singleVariant) {
+            if(isset($images[$index])){
+                $layout['variants'][$index]['asset'] = $images[$index];
+            }else{
+                $layout['variants'][$index]['asset'] = end($images);
             }
-        }
+        }      
 
-        return $this->getPicture($image, $layout['variants'], $layout['attributes'] ?? null);
+        return $this->getPictureMultiple($layout['variants'], $layout['attributes'] ?? []);
 
     }
 
-    public function getPictureSources(array $sources, array $htmlAttributes): ?\Twig\Markup
+    public function getPictureMultiple(array $sources, array $htmlAttributes): ?\Twig\Markup
     {
         $htmlString = '';
 
@@ -591,7 +599,7 @@ class ImageToolboxService extends Component
         }
 
         // placeholder background-color and opacity
-        $backgroundColor = !is_null(ImageToolbox::$plugin->getSettings()->filePlaceholderBackground) ? ImageToolbox::$plugin->getSettings()->filePlaceholderBackground : self::PLACEHOLDER_DEFAULT_BACKGROUND;
+        $backgroundColor = !is_null(ImageToolbox::$plugin->getSettings()->filePlaceholderBackgroundColor) ? ImageToolbox::$plugin->getSettings()->filePlaceholderBackgroundColor : self::PLACEHOLDER_DEFAULT_BACKGROUND;
         $backgroundOpacity = !is_null(ImageToolbox::$plugin->getSettings()->filePlaceholderBackgroundOpacity) ? ImageToolbox::$plugin->getSettings()->filePlaceholderBackgroundOpacity : self::PLACEHOLDER_DEFAULT_OPACITY;
 
         // image object

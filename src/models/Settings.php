@@ -35,7 +35,7 @@ class Settings extends Model
 
     public $placeholderMode = 'file';
     public $filePlaceholderPath = null;
-    public $filePlaceholderBackground = null;
+    public $filePlaceholderBackgroundColor = null;
     public $filePlaceholderBackgroundOpacity = null;
     public $filePlaceholderDirectory = 'placeholders';
 

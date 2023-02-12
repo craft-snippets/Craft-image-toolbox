@@ -131,14 +131,14 @@ class ImageToolboxVariable
      * @return \Twig\Markup|null
      * @throws \Twig\Error\RuntimeError
      */
-    public function layout(?Asset $image, string $layout_handle): ?\Twig\Markup
+    public function layout(object|array|null $image, string $layout_handle): ?\Twig\Markup
     {
         return ImageToolbox::getInstance()->imageToolbox->getLayout($image, $layout_handle);
     }
 
-    public function pictureSources(array $sources, array $htmlAttributes = []): ?\Twig\Markup
+    public function pictureMultiple(array $sources, array $htmlAttributes = []): ?\Twig\Markup
     {
-        return ImageToolbox::getInstance()->imageToolbox->getPictureSources($sources, $htmlAttributes);
+        return ImageToolbox::getInstance()->imageToolbox->getPictureMultiple($sources, $htmlAttributes);
     }
 
 }
