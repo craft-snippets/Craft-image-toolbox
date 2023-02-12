@@ -6,26 +6,21 @@ module.exports = {
 
     title: 'Image toolbox Documentation',
     description: 'Documentation for the Image toolbox Craft CMS plugin',
-    // base: '/_pog/vuepress_images/docs/.vuepress/dist/',
     base: '/docs/image-toolbox/',
     themeConfig: {
         displayAllHeaders: true,
         sidebar: [
             ['/', 'Introduction'],
             ['/Quick', 'Quick start'],
-            ['/Basic', 'Plugin functionality'],
+            ['/Picture', 'Outputting images'],
+            ['/Placeholders', 'Placeholders'],
+            ['/Layouts', 'Layouts'],
             ['/Methods', 'Methods list'],
             ['/Settings', 'Settings'],
         ],
         nav: [
           { text: 'craftsnippets.com', link: 'http://craftsnippets.com/' }
         ],
-
-
-
-        // codeLanguages: {
-        //   php: "PHP",
-        //   twig: "Twig",
-        // },                
+      
     }
 };

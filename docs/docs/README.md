@@ -27,6 +27,5 @@ To install the plugin, follow these instructions.
 
 * Retina support
 * Applying transform on assets within HTML strings
-* Creating picture elements from multiple image sources
 
 Brought to you by [Craft Snippets](http://craftsnippets.com)
