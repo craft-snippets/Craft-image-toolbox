@@ -1,6 +1,6 @@
 # Quick start
 
-To output `<picture>` element with [webp](https://css-tricks.com/using-webp-images/) variant in your template, use `picture()` method. If the asset is missing (it is `null`), placeholder with dimensions based on transform settings will be outputted instead.
+To output `<picture>` element with [webp](https://css-tricks.com/using-webp-images/) variant in your template, use `picture()` method. If the asset is missing (it equals `null`), placeholder with dimensions based on transform settings will be outputted instead.
 
 ```twig
 {# asset object containing image #}
@@ -13,7 +13,7 @@ To output `<picture>` element with [webp](https://css-tricks.com/using-webp-imag
     mode: 'stretch'
 } %}
 
-{# array of HTML attributes used in generated picture #}
+{# array of HTML attributes used in generated picture - optional parameter #}
 {# same syntax as used by Craft tag() function #}
 {% set htmlAttributes = {
 	class: 'some-class',
@@ -22,7 +22,7 @@ To output `<picture>` element with [webp](https://css-tricks.com/using-webp-imag
 {{craft.images.picture(someAsset, transformSettings, htmlAttributes)}}
 ```
 
-Here's the example HTML output. `<picture>` has two sources, one in webp format and one in jpg format, for browsers that do not [suport webp](https://caniuse.com/webp). If browser does not support `<picture>` element, fallback `<img>` element is provided.
+Here's the example HTML output. `<picture>` has two sources. One in the webp format and one in the jpg format. Depending on [webp support](https://caniuse.com/webp), browser will pick proper one. If browser does not support `<picture>` element, fallback `<img>` element will be used.
 
 ```html
 <picture>
@@ -32,4 +32,4 @@ Here's the example HTML output. `<picture>` has two sources, one in webp format 
 </picture>
 ```
 
-For detailed information about plugin functionality, including generating `<picture>` elements with multiple breakpoints, visit [Plugin functionality](Basic.md) documentation page.
+For the detailed information about the plugin functionality, including generating `<picture>` elements with multiple variants, visit other pages of documentation.

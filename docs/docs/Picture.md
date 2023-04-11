@@ -1,12 +1,12 @@
 # Generating picture element
 
-All images outputted by plugin are using `<picture>` HTML element instead of just `<img>`. On the surface, `<picture>` works same as standard `<img>`. Image Toolbox gives it however some very useful properties, such as generating webp version of images, or automatic placeholder generation.
+All images outputted by the plugin are using `<picture>` HTML element instead of just regular `<img>`. On the surface, `<picture>` works same as standard `<img>`. Image Toolbox gives it however some very useful properties, such as generating webp version of images, or automatic placeholder generation.
 
 ## picture() method
 
-`picture()` method can be used to generate simple `<picture>` which contains webp and non-webp variant of image.
+`picture()` method can be used to output simple `<picture>` which contains webp and non-webp variant of image.
 
-In example below, `someAsset` is asset object containing image and `transformSettings` is array of [image transform settings](https://craftcms.com/docs/3.x/image-transforms.html).
+In the example below, `someAsset` is asset object containing image, and `transformSettings` is array of [image transform settings](https://craftcms.com/docs/3.x/image-transforms.html).
 
 ```twig
 {% set someAsset = entry.imageField.one() %}
@@ -14,6 +14,9 @@ In example below, `someAsset` is asset object containing image and `transformSet
     width: 100,
     height: 200,
     mode: 'stretch'
+} %}
+{% set htmlAttributes = {
+    class: 'some-class',
 } %}
 {{craft.images.picture(someAsset, transformSettings)}}
 ```
@@ -24,21 +27,21 @@ Here's the generated HTML:
 <picture>
 <source type="image/webp" srcset="http://website.com/uploads/_100x200_stretch_center-center_none/3/something.webp">
 <source type="image/jpeg" srcset="http://website.com/uploads/_100x200_stretch_center-center_none/something.jpg">
-<img src="http://website.com/uploads/_100x200_stretch_center-center_none/something.jpg">
+<img src="http://website.com/uploads/_100x200_stretch_center-center_none/something.jpg" class="some-class">
 </picture>
 ```
 
-As you can see, `<picture>` has two `<source>` elements inside - one with **webp** version of the image and one with original image format. Browsers will choose the proper version depending on their [webp support](https://caniuse.com/#feat=webp). For the browsers that don't [support picture element](https://caniuse.com/#feat=picture) - there is also fallback `<img>` tag inside. Using webp format can save you 30% to 50% of file size compared to jpg.
+As you can see, `<picture>` has two `<source>` elements inside - one with **webp** version of the image and one with original image format. Browsers will choose the proper version depending on their [webp support](https://caniuse.com/#feat=webp) and ignore other one, so you don't have to worry about downloading redundant versions of image. For the browsers that don't [support picture element](https://caniuse.com/#feat=picture) - there is also fallback `<img>` tag inside. Using webp format can save you 30% to 50% of file size compared to jpg.
 
-Transform settings can be identical to ones used by native Craft image transforms. Providing them is actually optional - you can use `picture()` method like this: 
+Transform settings can be identical to ones used by native Craft image transforms. Providing them is actually optional - you can use `picture()` method, like this: 
 
 ```twig
 {{craft.images.picture(someAsset)}}
 ```
 
-This would make sense if you just wanted to make use of webp variant creation functionality, without modyfying image in any other way.
+This would make sense if you just wanted to make use of webp variant creation functionality, without modifying image in any other way.
 
-If [imager-x](https://plugins.craftcms.com/imager-x) (or [imager](https://plugins.craftcms.com/imager)) plugin is installed, it will be used for image transforms. Thanks to that, you can easily switch your transform generation method without modifying your Twig templates. If you decide to use Imager, SVG images will still use native Craft transforms (unless you decide otherwise in plugin settings). This is because Imager [can cause problems if used with SVG](https://github.com/aelvan/Imager-Craft/issues/136).
+If [imager-x](https://plugins.craftcms.com/imager-x) (or [imager](https://plugins.craftcms.com/imager)) plugin is installed, it will be automatically used for image transforms. Thanks to that, you can easily switch your transform generation method without modifying your Twig templates. If you decide to use Imager, SVG images will still use native Craft transforms (unless you decide otherwise in plugin settings). This is because Imager [can cause problems if used with SVG](https://github.com/aelvan/Imager-Craft/issues/136).
 
 ## pictureMultiple() method
 
