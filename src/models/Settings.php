@@ -32,5 +32,6 @@ class Settings extends Model
     public $placeholderUrl = null;
     public $transformLayouts = [];
     public $forcePlaceholders = false;
+    public $useWidthHeightAttributes = false;
 
 }

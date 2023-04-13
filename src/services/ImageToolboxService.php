@@ -221,6 +221,55 @@ class ImageToolboxService extends Component
     }
 
 
+    private static function getWidthHeightAttrs($asset, $transform)
+    {   
+
+        // if disabled
+        if(ImageToolbox::$plugin->getSettings()->useWidthHeightAttributes == false){
+            return null;
+        }
+
+        // if placeholder (Asset is null) and width/height missing, placeholder will be square
+        if(is_null($asset)){
+            if(isset($transform['width']) && !isset($transform['height'])){
+                $transform['height'] = $transform['width'];
+            }
+            if(!isset($transform['width']) && isset($transform['height'])){
+                $transform['width'] = $transform['height'];
+            }
+        }
+
+        // if no width height settings in transform, but image exists, get size of image
+        if(!isset($transform['width']) && !isset($transform['height']) && !is_null($asset)){
+            return [
+                'width' => $asset->width,
+                'height' => $asset->width,
+            ];            
+        }
+
+        // if both width height transform
+        if(isset($transform['width']) && isset($transform['height'])){
+            $upscale = Craft::$app->getConfig()->getGeneral()->upscaleImages;
+            // if upscaling enabled or no asset and we can make placeholder any size we want
+            if($upscale == true || is_null($asset)){
+                return [
+                    'width' => $transform['width'],
+                    'height' => $transform['height'],
+                ];
+            }else{
+                return [
+                    'width' => $transform['width'] > $asset->width ? $asset->width : $transform['width'],
+                    'height' => $transform['height'] > $asset->height ? $asset->height : $transform['height'],
+                ];                
+            }
+        }
+
+        // if image exists but only height or only width in transform
+        return null;
+
+    }
+
+
     /**
      * Returns markup of picture sources.
      *
@@ -243,21 +292,37 @@ class ImageToolboxService extends Component
                 // webp version
                 if(self::canAddWebpSource($image, $source['transform'])){
                     $settings_webp = array_merge($source['transform'], ['format' => 'webp']);
-                    $html_string .= "\n";
-                    $html_string .= Html::tag('source', '', [
+
+                    $attrsWebp = [
                         'media' => $source['media'] ?? null,
                         'srcset' => self::getTransformUrl($image, $settings_webp),
                         'type' => 'image/webp',
-                    ]);
+                    ];
+
+                    if(!is_null(self::getWidthHeightAttrs($image, $source['transform']))){
+                        $attrsWebp['width'] = self::getWidthHeightAttrs($image, $source['transform'])['width'];
+                        $attrsWebp['height'] = self::getWidthHeightAttrs($image, $source['transform'])['height'];
+                    }
+
+                    $html_string .= "\n";
+                    $html_string .= Html::tag('source', '', $attrsWebp);
                 }
 
                 // regular version
                 $html_string .= "\n";
-                $html_string .= Html::tag('source', '', [
+
+                $attrsRegular = [
                     'media' => $source['media'] ?? null,
                     'srcset' => self::getTransformUrl($image, $source['transform']),
                     'type' => isset($source['transform']['format']) ? 'image/'.$source['transform']['format'] : $image->getMimeType(),
-                ]); 
+                ];
+
+                if(!is_null(self::getWidthHeightAttrs($image, $source['transform']))){
+                    $attrsRegular['width'] = self::getWidthHeightAttrs($image, $source['transform'])['width'];
+                    $attrsRegular['height'] = self::getWidthHeightAttrs($image, $source['transform'])['height'];
+                }
+
+                $html_string .= Html::tag('source', '', $attrsRegular); 
             // if empty source
             }else{
                 $html_string .= "\n";
@@ -309,11 +374,19 @@ class ImageToolboxService extends Component
 
             // sources
             foreach($sources as $source){
-                $html_string .= "\n";
-                $html_string .= Html::tag('source', '', [
+
+                $attrs = [
                     'media' => $source['media'] ?? null,
                     'srcset' => self::getPlaceholderUrl($source['transform']),
-                ]);
+                ];
+
+                if(!is_null(self::getWidthHeightAttrs(null, $source['transform']))){
+                    $attrs['width'] = self::getWidthHeightAttrs(null, $source['transform'])['width'];
+                    $attrs['height'] = self::getWidthHeightAttrs(null, $source['transform'])['height'];
+                }
+
+                $html_string .= "\n";
+                $html_string .= Html::tag('source', '', $attrs);
             }
 
             // fallback - first transform

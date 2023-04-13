@@ -1,5 +1,9 @@
 # Image toolbox Changelog
 
+## 2.0.1 - 2023.04.13
+### Added
+* Added support for displaying width and height attributes on image sources when "useWidthHeightAttributes" setting is set to true
+
 ## 2.0.0 - 2022.05.25
 ### Added
 * Added Craft CMS 4 support
