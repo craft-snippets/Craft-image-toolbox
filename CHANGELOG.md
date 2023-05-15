@@ -1,5 +1,11 @@
 # Image toolbox Changelog
 
+## 2.0.2 - 2023.05.15
+### Fixed
+* Width and height attributes are now properly calculated when width or height is missing from the transform.
+* Width and height attributes are now added to the fallback img tag of picture element.
+* Fixed the bug with width being used for height attribute if no transform settings were used for generating picture element.
+
 ## 2.0.1 - 2023.04.13
 ### Added
 * Added support for displaying width and height attributes on image sources when "useWidthHeightAttributes" setting is set to true
