@@ -40,4 +40,5 @@ class Settings extends Model
     public $filePlaceholderDirectory = 'placeholders';
 
     public $suppressExceptions = false;
+    public $useWidthHeightAttributes = false;
 }
