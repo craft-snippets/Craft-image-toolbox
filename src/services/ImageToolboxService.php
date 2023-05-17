@@ -585,9 +585,18 @@ class ImageToolboxService extends Component
             }else{
                 $layout['variants'][$index]['asset'] = end($images);
             }
-        }      
+        }
 
-        return $this->getPictureMultiple($layout['variants'], $layout['attributes'] ?? []);
+        // html attributes
+        if(!isset($layout['attributes'])){
+            $layout['attributes'] = [];
+        }
+
+        if(is_callable($layout['attributes'])){
+            $layout['attributes'] = call_user_func($layout['attributes'], $images);
+        }
+
+        return $this->getPictureMultiple($layout['variants'], $layout['attributes']);
 
     }
 
