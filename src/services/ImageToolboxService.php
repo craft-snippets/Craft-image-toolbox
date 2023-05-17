@@ -274,7 +274,7 @@ class ImageToolboxService extends Component
         //     throw new ImageTransformException("Transforming .$ext files is not supported.");
         // }
 
-        // $format = $transform->format ?: static::detectTransformFormat($asset);
+        $format = $transform->format ?: \craft\helpers\ImageTransforms::detectTransformFormat($asset);
         $imagesService = Craft::$app->getImages();
 
         // $supported = match ($format) {
@@ -467,9 +467,11 @@ class ImageToolboxService extends Component
             'src' => $fallback_src,
         ];
 
-        if(!is_null(self::getWidthHeightAttrs($image, $fallback_transform))){
-            $fallback_attributes['width'] = self::getWidthHeightAttrs($image, $fallback_transform)['width'];
-            $fallback_attributes['height'] = self::getWidthHeightAttrs($image, $fallback_transform)['height'];
+        if(ImageToolbox::$plugin->getSettings()->useWidthHeightAttributesOnFallback == true){
+            if(!is_null(self::getWidthHeightAttrs($image, $fallback_transform))){
+                $fallback_attributes['width'] = self::getWidthHeightAttrs($image, $fallback_transform)['width'];
+                $fallback_attributes['height'] = self::getWidthHeightAttrs($image, $fallback_transform)['height'];
+            }            
         }
 
         // add provided attributes
@@ -536,6 +538,13 @@ class ImageToolboxService extends Component
                 $fallback_attributes['class'] = $placeholder_class;
             }
 
+            if(ImageToolbox::$plugin->getSettings()->useWidthHeightAttributesOnFallback == true){
+                if(!is_null(self::getWidthHeightAttrs(null, $fallback_transform))){
+                    $fallback_attributes['width'] = self::getWidthHeightAttrs(null, $fallback_transform)['width'];
+                    $fallback_attributes['height'] = self::getWidthHeightAttrs(null, $fallback_transform)['height'];
+                }
+            }
+
             $html_string .= "\n";
             $html_string .= Html::tag('img', '', $fallback_attributes);
             $html_string .= "\n";
@@ -599,7 +608,11 @@ class ImageToolboxService extends Component
             }
         }
 
+        
         $sources = array_map(function($single){
+            // make sure transform array exists
+            $single['transform'] = $single['transform'] ?? [];
+            // db based transforms
             $single['transform'] = $this->getTransformSettings($single['transform']);
             return $single;
         }, $sources);
@@ -639,63 +652,63 @@ class ImageToolboxService extends Component
                 $mediaBreakpoint = '(min-width: ' . $singleSource['min'] . 'px)';
             }
 
-            // if transform set to null, show transparent pixel
-            if(is_null($singleSource['transform'])){
-                $sourceAttributes = [
-                    'media' => $mediaBreakpoint,
-                    'srcset' => $this->getPlaceholderUrl(null),
-                ];                
-                $sourcesHtml .= $this->getHtmlTag('source', $sourceAttributes);
-            }
+            // source markup
+            $transfromSettings = $singleSource['transform'];
 
-            // regular tranform
-            if(!is_null($singleSource['transform'])){
+            // webp version
+            if(!is_null($singleSource['asset']) && $this->canAddWebpSource($singleSource['asset'], $transfromSettings)){
 
-                $transfromSettings = $singleSource['transform'];
-
-                // webp version
-                if(!is_null($singleSource['asset']) && $this->canAddWebpSource($singleSource['asset'], $transfromSettings)){
-
-                    // force webp
-                    $transformWebp = array_merge($transfromSettings, ['format' => 'webp']);
-
-                    // transform asset or show placeholder
-                    $srcsetWebp = $this->getPlaceholderOrTransform($singleSource['asset'], $transformWebp);
-
-                    // html attributes for source
-                    $webpSourceAttributes = [
-                        'media' => $mediaBreakpoint,
-                        'srcset' => $srcsetWebp,
-                    ];
-
-                    // mime type
-                    if(!is_null($singleSource['asset'])){
-                        $webpSourceAttributes['type'] = 'image/webp';
-                    }
-
-                    $htmlString .= $this->getHtmlTag('source', $webpSourceAttributes);
-                }
-
-                // regular version
+                // force webp
+                $transformWebp = array_merge($transfromSettings, ['format' => 'webp']);
 
                 // transform asset or show placeholder
-                $srcsetRegular = $this->getPlaceholderOrTransform($singleSource['asset'], $transfromSettings);
-                $sourceAttributes = [
+                $srcsetWebp = $this->getPlaceholderOrTransform($singleSource['asset'], $transformWebp);
+
+                // html attributes for source
+                $webpSourceAttributes = [
                     'media' => $mediaBreakpoint,
-                    'srcset' => $srcsetRegular,
+                    'srcset' => $srcsetWebp,
                 ];
-                
+
                 // mime type
                 if(!is_null($singleSource['asset'])){
-                    if(isset($transfromSettings['format'])){
-                        $sourceAttributes['type'] = 'image/'.$transfromSettings['format'];
-                    }else{
-                        $sourceAttributes['type'] = $singleSource['asset']->getMimeType();
-                    }
+                    $webpSourceAttributes['type'] = 'image/webp';
                 }
 
-                $htmlString .= $this->getHtmlTag('source', $sourceAttributes);
+                // width height
+                $webpWidthHeight = self::getWidthHeightAttrs($singleSource['asset'], $transfromSettings);
+                if(!is_null($webpWidthHeight)){
+                    $webpSourceAttributes['width'] = $webpWidthHeight['width'];
+                    $webpSourceAttributes['height'] = $webpWidthHeight['height'];
+                }
+
+                $htmlString .= $this->getHtmlTag('source', $webpSourceAttributes);
             }
+
+            // non-webp version
+            $srcsetRegular = $this->getPlaceholderOrTransform($singleSource['asset'], $transfromSettings);
+            $sourceAttributes = [
+                'media' => $mediaBreakpoint,
+                'srcset' => $srcsetRegular,
+            ];
+            
+            // mime type
+            if(!is_null($singleSource['asset'])){
+                if(isset($transfromSettings['format'])){
+                    $sourceAttributes['type'] = 'image/'.$transfromSettings['format'];
+                }else{
+                    $sourceAttributes['type'] = $singleSource['asset']->getMimeType();
+                }
+            }
+
+            // width height
+            $widthHeight = self::getWidthHeightAttrs($singleSource['asset'], $transfromSettings);
+            if(!is_null($widthHeight)){
+                $sourceAttributes['width'] = $widthHeight['width'];
+                $sourceAttributes['height'] = $widthHeight['height'];
+            }
+
+            $htmlString .= $this->getHtmlTag('source', $sourceAttributes);
         }
 
         // fallback - first source
@@ -707,8 +720,22 @@ class ImageToolboxService extends Component
         $fallBackHtmlAttributes = [
             'src' => $fallbackSrc,
         ];
+
+        // width height
+        if(ImageToolbox::$plugin->getSettings()->useWidthHeightAttributesOnFallback == true){
+            $fallbackWidthHeight = self::getWidthHeightAttrs($fallbackAsset, $transfromSettings);
+            if(!is_null($fallbackWidthHeight)){
+                $fallBackHtmlAttributes['width'] = $fallbackWidthHeight['width'];
+                $fallBackHtmlAttributes['height'] = $fallbackWidthHeight['height'];
+            }            
+        }
+
+
+        // html attrs provided from template
         $fallBackHtmlAttributes = array_merge($fallBackHtmlAttributes, $htmlAttributes);
+
         $htmlString .= $this->getHtmlTag('img', $fallBackHtmlAttributes);
+        $htmlString .= "\n";
 
         // wrap in picture tag
         $pictureTag = Html::tag('picture', $htmlString);
