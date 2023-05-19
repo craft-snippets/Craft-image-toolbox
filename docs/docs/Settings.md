@@ -12,7 +12,6 @@ Place these settings in `config/image-toolbox` file.
 * `placeholderUrl` - URL of placeholder image. `{width}` and `{height}` in URL will be replaced with width and height of placeholder. If this settings is empty, SVG placeholder will be used.
 * `transformLayouts` - pre-defined transform settings. Read more in "Transform layouts" section of documentation.
 * `useWidthHeightAttributes` - if width and height attributes should be added to source (and fallback img) elements. Default: `false`.
-
 * `placeholderMode` - mode used when generating placeholders. Possible values: `file`, `svg`, `url`. Default value: `file`.
 * `filePlaceholderPath` - location (relative to the project root) of the source file used with placeholder file mode.
 * `filePlaceholderBackgroundColor` - hex value of background color used when generating placeholder files with placeholder file mode.
