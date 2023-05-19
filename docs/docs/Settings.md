@@ -11,10 +11,11 @@ Place these settings in `config/image-toolbox` file.
 * `useImagerForSvg` - if imager should be used also for SVG images. Default: `false`.
 * `placeholderUrl` - URL of placeholder image. `{width}` and `{height}` in URL will be replaced with width and height of placeholder. If this settings is empty, SVG placeholder will be used.
 * `transformLayouts` - pre-defined transform settings. Read more in "Transform layouts" section of documentation.
+* `useWidthHeightAttributes` - if width and height attributes should be added to source (and fallback img) elements. Default: `false`.
 
-* `placeholderMode` - 
-* `filePlaceholderPath` - 
-* `filePlaceholderBackgroundColor` - 
-* `filePlaceholderBackgroundOpacity` - 
-* `filePlaceholderDirectory` - 
-* `suppressExceptions` - 
+* `placeholderMode` - mode used when generating placeholders. Possible values: `file`, `svg`, `url`. Default value: `file`.
+* `filePlaceholderPath` - location (relative to the project root) of the source file used with placeholder file mode.
+* `filePlaceholderBackgroundColor` - hex value of background color used when generating placeholder files with placeholder file mode.
+* `filePlaceholderBackgroundOpacity` - opacity of background color used when generating placeholder files with placeholder file mode. Possible values: `1` - `100`.
+* `filePlaceholderDirectory` - path where generated placeholder files will be outputted, relative to the project root. 
+* `suppressExceptions` - if errors should be thrown when passing incorrect parameters to the functions or if methods should fail siliently, not outputting anything at all.

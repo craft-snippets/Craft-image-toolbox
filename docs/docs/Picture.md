@@ -1,53 +1,20 @@
 # Generating picture element
 
-All images outputted by the plugin are using `<picture>` HTML element instead of just regular `<img>`. On the surface, `<picture>` works same as standard `<img>`. Image Toolbox gives it however some very useful properties, such as generating webp version of images, or automatic placeholder generation.
+All images outputted by the plugin are using `<picture>` HTML element instead of just regular `<img>`. On the surface, `<picture>` works same as standard `<img>` - but its main feature is displaying multiple variants of image, in separste `<source>` tags. One of these sources can then be selected by brower based on breakpoint or specific image format support. 
 
-## picture() method
-
-`picture()` method can be used to output simple `<picture>` which contains webp and non-webp variant of image.
-
-In the example below, `someAsset` is asset object containing image, and `transformSettings` is array of [image transform settings](https://craftcms.com/docs/3.x/image-transforms.html).
-
-```twig
-{% set someAsset = entry.imageField.one() %}
-{% set transformSettings = {
-    width: 100,
-    height: 200,
-    mode: 'stretch'
-} %}
-{% set htmlAttributes = {
-    class: 'some-class',
-} %}
-{{craft.images.picture(someAsset, transformSettings)}}
-```
-
-Here's the generated HTML:
-
-```html
-<picture>
-<source type="image/webp" srcset="http://website.com/uploads/_100x200_stretch_center-center_none/3/something.webp">
-<source type="image/jpeg" srcset="http://website.com/uploads/_100x200_stretch_center-center_none/something.jpg">
-<img src="http://website.com/uploads/_100x200_stretch_center-center_none/something.jpg" class="some-class">
-</picture>
-```
-
-As you can see, `<picture>` has two `<source>` elements inside - one with **webp** version of the image and one with original image format. Browsers will choose the proper version depending on their [webp support](https://caniuse.com/#feat=webp) and ignore other one, so you don't have to worry about downloading redundant versions of image. For the browsers that don't [support picture element](https://caniuse.com/#feat=picture) - there is also fallback `<img>` tag inside. Using webp format can save you 30% to 50% of file size compared to jpg.
-
-Transform settings can be identical to ones used by native Craft image transforms. Providing them is actually optional - you can use `picture()` method, like this: 
-
-```twig
-{{craft.images.picture(someAsset)}}
-```
-
-This would make sense if you just wanted to make use of webp variant creation functionality, without modifying image in any other way.
-
-If [imager-x](https://plugins.craftcms.com/imager-x) (or [imager](https://plugins.craftcms.com/imager)) plugin is installed, it will be automatically used for image transforms. Thanks to that, you can easily switch your transform generation method without modifying your Twig templates. If you decide to use Imager, SVG images will still use native Craft transforms (unless you decide otherwise in plugin settings). This is because Imager [can cause problems if used with SVG](https://github.com/aelvan/Imager-Craft/issues/136).
+Image Toolbox uses this feature of `<picture>` for automatic generation of webp version of images gives it however some very useful properties, such as generating webp version of images, or using multiple image transforms for specific breakpoints.
 
 ## pictureMultiple() method
 
-`pictureMultiple()` method can be used to generate `<picture>` with multiple variants displayed on separate breakpoints. These variants can all use same asset or different ones, as shown below:
+`pictureMultiple()` method can be used to generate `<picture>` with multiple variants. Each variant can contain:
 
-```
+* asset object (if we pass null there, this variant will be generated as the placeholder). Each source can have different asset or we can use one same one for all of them.
+* transform settings - either array of settings, or handle of control panel defined transform.
+* media query value defining when this source should be shown. We can use `media` key for explicit media query.
+
+These variants can all use same asset or different ones, as shown below.
+
+```twig
 {% set someAsset1 = entry.imageField1.one() %}
 {% set someAsset2 = entry.imageField2.one() %}
 
@@ -73,24 +40,33 @@ If [imager-x](https://plugins.craftcms.com/imager-x) (or [imager](https://plugin
         }        
     ]
  %}
-{{ craft.images.pictureMultiple(settings) }}
+
+{% set htmlAttributes = {
+    class: 'some-class',
+} %}
+
+{{ craft.images.pictureMultiple(settings, htmlAttributes) }}
 ```
+
+While we defined two variants, this code will actually generate **four** sources, because each variants will have webp and original format source. Browsers will choose the proper version depending on their [webp support](https://caniuse.com/#feat=webp) and ignore other one, so you don't have to worry about downloading redundant versions of image. 
+
+For the browsers that don't [support picture element](https://caniuse.com/#feat=picture) - there is also fallback `<img>` tag inside. This tag is also important because we need to use it to apply HTMl attributes such as class to our image. We cannot do that directly on `<picture>`. 
 
 Here's the generated HTML:
 
 ```html
 <picture>
+<source type="image/jpeg" srcset="http://website.com/uploads/_200x500_crop_center-center_none/image1.webp" media="(min-width: 1024px)">
 <source type="image/jpeg" srcset="http://website.com/uploads/_200x500_crop_center-center_none/image1.jpg" media="(min-width: 1024px)">
+<source type="image/jpeg" srcset="http://website.com/uploads/_400x500_fit_center-center_none/image2.webp" media="(max-width: 1023px)">
 <source type="image/jpeg" srcset="http://website.com/uploads/_400x500_fit_center-center_none/image2.jpg" media="(max-width: 1023px)">
-<img src="http://website.com/uploads/_200x500_crop_center-center_none/image1.jpg">
+<img src="http://website.com/uploads/_200x500_crop_center-center_none/image1.jpg" class="some-class">
 </picture>
 ```
 
-Just like `picture()`, `pictureMultiple()` also generates webp versions of images, but these were omitted from this example for simplicity's sake. `<img>` fallback was created from first source in `settings` array automatically.
-
 Instead of setting breakpoint explictly by using  `media` and setting it to value like `(max-width: 1023px)`, you may also use `min` and `max` for each source:
 
-```
+```twig
 {% set someAsset1 = entry.imageField1.one() %}
 {% set someAsset2 = entry.imageField2.one() %}
 
@@ -121,9 +97,15 @@ Instead of setting breakpoint explictly by using  `media` and setting it to valu
 
 This will generate identical HTML as with using `media` setting.
 
+## Width and height attributes
+
+Each picture source can have `width` and `height` attribute based on dimensions of transformed image for this source. This can be useful for some lazy loading solutions, althought by default this functionality is disabled. You can enable it by settings `useWidthHeightAttributes` to `true` in plugin settings.
+
 ## Webp variants of images
 
-Generating **webp** version of image actually depends on a few things. Webp variant will be outputted along with image in original format if:
+Why do we go through hassle of generating separate webp version of image? Tahts because using webp format can save you 30% to 50% of file size compared to jpg. This can mean large increases in the page load time.
+
+Generating **webp** version of image by the plugin actually depends on a few things. Webp variant will be outputted along with image in original format if:
 
 * Provided image is not in SVG format. It would not make much sense to transform SVG which is a vector graphic format into webp which is used for raster images.
 * Our server supports webp image transforms. Webp support can be tested by using Craft `craft.app.images.supportsWebP()` method in your Twig templates - same method that Image toolbox uses internally. If Craft somehow wrongly detects lack of webp support, while server actually does suport it, webp generation can be forced by setting `forceWebp` to `true` in plugin config.
@@ -134,6 +116,26 @@ Generating **webp** version of image actually depends on a few things. Webp vari
 ## Deprecated methods
 
 This methods were used before `pictureMultiple()` was introduced. They are kept for the sake of backwards compatibility. They do not allow using separate assets on multiple breakpoints - all breakpoints share same asset. 
+
+### picture() method
+
+This method can be used for generating `<picture>` with single variant (which will be generatet as two sources - webp and one in original format).
+
+```twig
+In the example below, `someAsset` is asset object containing image, and `transformSettings` is array of [image transform settings](https://craftcms.com/docs/3.x/image-transforms.html).
+
+```twig
+{% set someAsset = entry.imageField.one() %}
+{% set transformSettings = {
+    width: 100,
+    height: 200,
+    mode: 'stretch'
+} %}
+{% set htmlAttributes = {
+    class: 'some-class',
+} %}
+{{craft.images.picture(someAsset, transformSettings, htmlAttributes)}}
+```
 
 ### pictureMedia() method
 
@@ -199,6 +201,8 @@ If your multiple tranform settings used for breakpoints have many identical valu
 } %}
 {{craft.images.pictureMedia(someAsset, transforms)}}
 ```
+
+Note that if you use `null` as transform value, source for this transform will be generated as transparent pixel. This can be used if we dont want to display image at all on the specific breakpoint.
 
 ### pictureMax() and pictureMin() methods
 

@@ -1,6 +1,6 @@
 # Placeholders
 
-If the image is missing (image object equals `null`), plugin functions will output placeholder image with size based on provided image transform settings. This is very useful for various listing pages where layout may depend on existance of image with specific dimensions. If transform settings have only height or width set, placeholder will be generated as square - with both width and height set to same value, taken from dimenstion that was provided.
+If the image is missing (asset object equals `null`), plugin methods will output placeholder image with size based on the provided image transform settings. This is very useful for various listing pages where layout may depend on existance of image with specific dimensions. If transform settings have only height or width set, placeholder will be generated as the square - with both width and height set to same value, taken from dimenstion that was provided.
 
 ## Placeholder modes
 
@@ -8,12 +8,12 @@ There are three methods of placeholder generation - you can select one using `pl
 
 ### File mode
 
-This is default method. To use it, set `placeholderMode` to `file`. This method will generate image placeholders, based on source image. To make image fit transform settings, space will be added either from sides or top and bottom.
+This is the default method. To use it, set `placeholderMode` to `file`. This method will generate image placeholders, based on source image. To make image fit transform settings, space will be added either from sides or top and bottom.
 
-Plugin provides default source image, but you can change it to your own. Here are plugins settings that can be used for that:
+Plugin provides default source image for the placeholder, but you can change it to your own. Here are the plugins settings that can be used for that:
 
-* `filePlaceholderPath` - file path to source image file, relative to root directory of project.
-* `filePlaceholderBackgroundColor` - hex value of background color that will be applied to empty space added to source image to make it fit transform settings.
+* `filePlaceholderPath` - file path to source image file, relative to root directory of your project.
+* `filePlaceholderBackgroundColor` - hex value of background color that will be applied to empty space in the placeholder image.
 * `filePlaceholderBackgroundOpacity` - opacity of background color, with value from 0 to 100.
 
 Placeholder images are outputted into `@web\placeholders` directory by default. This location can be changed with `filePlaceholderDirectory` plugin config setting. Remember that when you are changing placeholder settings, you need to remove old placeholder files so they can be generated again.
@@ -29,7 +29,7 @@ To use it, set `placeholderMode` to `url`. This method will use exteral URLs for
 
 ## Forcing placeholders
 
-If you want to force all plugin methods use placeholder images, even if asset fields proper values, you can set `forcePlaceholders` setting to `true`. This might be useful if you want to create some kind of development copy of the website and transferring all uploaded assets to the other server is too much hassle.
+If you want to force all plugin methods use placeholder images, you can set `forcePlaceholders` setting to `true`. This might be useful if you want to create some kind of development copy of the website and transferring all uploaded assets to the other server is too much hassle.
 
 ## Placeholder method
 

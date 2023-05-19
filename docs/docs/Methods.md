@@ -2,8 +2,6 @@
 
 For detailed information about each method, please visit [Plugin functionality](Basic) page.
 
-* `craft.images.picture(image, transform, htmlAttributes)` - generates `<picture>` element.
-
 * `craft.images.pictureMultiple(imageVariants, htmlAttributes)` - generates `<picture>` element with multiple variants. `variants` param is array of objects where each object can have these properties:
 	* `asset` - asset object for variant
 	* `transform` - asset transform settings for variant. Can be array of transform settings or handle of control panel defined transform.
@@ -16,6 +14,8 @@ For detailed information about each method, please visit [Plugin functionality](
 * `craft.images.placeholder(transform)` - generates image placeholder based `width` and `height` settings.
 
 Deprecated methods:
+
+* `craft.images.picture(image, transform, htmlAttributes)` - generates `<picture>` element.
 
 * `craft.images.pictureMedia(image, transforms, commonSettings, htmlAttributes)` - generates `<picture>` element from multiple image transforms. Breakpoints are set in format like `(max-width: 600px)`.
 
