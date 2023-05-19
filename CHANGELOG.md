@@ -1,6 +1,6 @@
 # Image toolbox Changelog
 
-## 2.1.0 - 2023.05.15
+## 2.1.0 - 2023.05.19
 ### Added
 * Added pictureMultiple() method, allowing for generating picture element with each source using different asset.
 * Added file placeholder mode, which generates placeholders based on source image file.
