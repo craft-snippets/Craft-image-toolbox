@@ -25,8 +25,6 @@ use Imagine\Gd\Imagine as GdImagine;
 use Imagine\Imagick\Imagine as ImagickImagine;
 
 
-
-
 /**
  * @author    Piotr Pogorzelski
  * @package   ImageToolbox
@@ -260,127 +258,6 @@ class ImageToolboxService extends Component
         return false;
     }
 
-    // copied from ImageTransforms class
-
-    public static function generateTransformImageObj(
-        Asset $asset,
-        \craft\models\ImageTransform $transform,
-        // ?callable $heartbeat = null,
-        // ?BaseImage &$image = null,
-    // ): string {
-    ) {
-        $ext = strtolower($asset->getExtension());
-        // if (!Image::canManipulateAsImage($ext)) {
-        //     throw new ImageTransformException("Transforming .$ext files is not supported.");
-        // }
-
-        // $format = $transform->format ?: static::detectTransformFormat($asset);
-        $imagesService = Craft::$app->getImages();
-
-        // $supported = match ($format) {
-        //     Format::ID_WEBP => $imagesService->getSupportsWebP(),
-        //     Format::ID_AVIF => $imagesService->getSupportsAvif(),
-        //     Format::ID_HEIC => $imagesService->getSupportsHeic(),
-        //     default => true,
-        // };
-
-        // if (!$supported) {
-        //     throw new ImageTransformException("The `$format` format is not supported on this server.");
-        // }
-
-        // $generalConfig = Craft::$app->getConfig()->getGeneral();
-        $imageSource = \craft\helpers\ImageTransforms::getLocalImageSource($asset);
-
-        if ($ext === 'svg' && $format !== 'svg') {
-            $size = max($transform->width, $transform->height) ?? 1000;
-            $image = $imagesService->loadImage($imageSource, true, $size);
-        } else {
-            $image = $imagesService->loadImage($imageSource);
-        }
-
-        // if ($image instanceof Raster) {
-        //     $image->setQuality($transform->quality ?: $generalConfig->defaultImageQuality);
-        //     $image->setHeartbeatCallback($heartbeat);
-        // }
-
-        if ($asset->getHasFocalPoint() && $transform->mode === 'crop') {
-            $position = $asset->getFocalPoint();
-        } elseif (!preg_match('/^(top|center|bottom)-(left|center|right)$/', $transform->position)) {
-            $position = 'center-center';
-        } else {
-            $position = $transform->position;
-        }
-
-        $scaleIfSmaller = $transform->upscale ?? Craft::$app->getConfig()->getGeneral()->upscaleImages;
-
-        switch ($transform->mode) {
-            case 'letterbox':
-                if ($image instanceof \craft\image\Raster) {
-                    $image->scaleToFitAndFill(
-                        $transform->width,
-                        $transform->height,
-                        $transform->fill,
-                        $position,
-                        $scaleIfSmaller
-                    );
-                } else {
-                    // Craft::warning("Cannot add fill to non-raster images");
-                    $image->scaleToFit($transform->width, $transform->height, $scaleIfSmaller);
-                }
-                break;
-            case 'fit':
-                $image->scaleToFit($transform->width, $transform->height, $scaleIfSmaller);
-                break;
-            case 'stretch':
-                $image->resize($transform->width, $transform->height);
-                break;
-            default:
-                $image->scaleAndCrop($transform->width, $transform->height, $scaleIfSmaller, $position);
-        }
-
-        // if ($image instanceof Raster) {
-        //     $image->setInterlace($transform->interlace);
-        // }
-
-        return $image;
-    }
-
-    private static function getWidthHeightAttrs($asset, $transform)
-    {   
-
-        // if disabled
-        if(ImageToolbox::$plugin->getSettings()->useWidthHeightAttributes == false){
-            return null;
-        }
-
-        // if placeholder (Asset is null) and width/height missing, placeholder will be square
-        if(is_null($asset)){
-            if(isset($transform['width']) && !isset($transform['height'])){
-                $transform['height'] = $transform['width'];
-            }
-            if(!isset($transform['width']) && isset($transform['height'])){
-                $transform['width'] = $transform['height'];
-            }
-        }
-
-        // if no width height settings in transform, but image exists, get size of image
-        if(!isset($transform['width']) && !isset($transform['height']) && !is_null($asset)){
-            return [
-                'width' => $asset->width,
-                'height' => $asset->height,
-            ];            
-        }
-
-        // regular transform
-        $transformSettings = new \craft\models\ImageTransform($transform);
-        $image = self::generateTransformImageObj($asset, $transformSettings);
-        return [
-            'width' => $image->width,
-            'height' => $image->height,
-        ];
-
-    }
-
 
 
     // copied from ImageTransforms class
@@ -596,7 +473,7 @@ class ImageToolboxService extends Component
         if(!is_null(self::getWidthHeightAttrs($image, $fallback_transform))){
             $fallback_attributes['width'] = self::getWidthHeightAttrs($image, $fallback_transform)['width'];
             $fallback_attributes['height'] = self::getWidthHeightAttrs($image, $fallback_transform)['height'];
-        }        
+        }            
 
         // add provided attributes
         if(!is_null($attributes)){

@@ -32,7 +32,6 @@ class Settings extends Model
     public $placeholderUrl = '';
     public $transformLayouts = [];
     public $forcePlaceholders = false;
-    public $useWidthHeightAttributes = false;
 
     public $placeholderMode = 'file';
     public $filePlaceholderPath = null;
