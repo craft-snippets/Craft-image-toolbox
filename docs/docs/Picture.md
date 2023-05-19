@@ -1,18 +1,63 @@
 # Generating picture element
 
-All images outputted by the plugin are using `<picture>` HTML element instead of just regular `<img>`. On the surface, `<picture>` works same as standard `<img>` - but its main feature is displaying multiple variants of image, in separste `<source>` tags. One of these sources can then be selected by brower based on breakpoint or specific image format support. 
+## Picture HTML element
 
-Image Toolbox uses this feature of `<picture>` for automatic generation of webp version of images gives it however some very useful properties, such as generating webp version of images, or using multiple image transforms for specific breakpoints.
+All images outputted by the plugin are using `<picture>` HTML element instead of just regular `<img>`. On the surface, `<picture>` works same as standard `<img>` - but its main feature is displaying multiple variants of image, in the separate `<source>` tags. One of these sources can then be selected by brower based on breakpoint values set im `media` attribute or specific image format support. 
+
+Image Toolbox uses this feature of `<picture>` for automatic generation of [webp](https://css-tricks.com/using-webp-images/) version of images or using different image transforms for specific breakpoints.
 
 ## pictureMultiple() method
 
-`pictureMultiple()` method can be used to generate `<picture>` with multiple variants. Each variant can contain:
+`craft.images.pictureMultiple()` method can be used to generate `<picture>` element. Here is a simple example:
 
-* asset object (if we pass null there, this variant will be generated as the placeholder). Each source can have different asset or we can use one same one for all of them.
-* transform settings - either array of settings, or handle of control panel defined transform.
-* media query value defining when this source should be shown. We can use `media` key for explicit media query.
+```twig
+{% set someAsset1 = entry.imageField1.one() %}
 
-These variants can all use same asset or different ones, as shown below.
+{% set settings = 
+    [
+        {
+            asset: someAsset1,
+            transform: {
+                width: 200,
+                height: 500,
+                mode: 'crop',
+            },
+        }       
+    ]
+ %}
+
+{% set htmlAttributes = {
+    class: 'some-class',
+} %}
+
+{{ craft.images.pictureMultiple(settings, htmlAttributes) }}
+```
+
+First parameter of function takes in array of variants of image (in this case we have only one variant). Array contains: 
+* `asset` object (if it equals `null`, placeholder image with size based on transform settings will be used instead).
+* `transform` settings - either array of [image transform settings](https://craftcms.com/docs/3.x/image-transforms.html), or handle of control panel defined transform.
+
+Second parameter of function is optional array of HTML attributes. This array uses the same attribute definitions supported by using [renderTagAttributes](yii\helpers\BaseHtml::renderTagAttributes()).
+
+This is the generated HTML code. 
+
+```html
+<picture>
+<source type="image/jpeg" srcset="http://website.com/uploads/_200x500_crop_center-center_none/image1.webp">
+<source type="image/jpeg" srcset="http://website.com/uploads/_200x500_crop_center-center_none/image1.jpg">
+<img src="http://website.com/uploads/_200x500_crop_center-center_none/image1.jpg" class="some-class">
+</picture>
+```
+
+As you can see, `<picture>` has two sources - webp source and jpg source. Browsers will choose the proper version depending on their [webp support](https://caniuse.com/#feat=webp) and ignore other one, so you don't have to worry about downloading redundant versions of image. 
+
+For the browsers that don't [support picture element](https://caniuse.com/#feat=picture) - there is also fallback `<img>` tag inside. This tag is also important because we need to use it to apply HTMl attributes such as class to our image. We cannot do that directly on the `<picture>`.
+
+Note that you can ommit `transform` settings, if you want to only use webp variant generation functionality of the plugin, without transforming source image in any other way.
+
+## Picture with multiple breakpoint variants
+
+`craft.images.pictureMultiple()` method can be used to generate `<picture>` with multiple variants, displayed in specific breakpoints. These variants can all use same asset or different ones, as shown below.
 
 ```twig
 {% set someAsset1 = entry.imageField1.one() %}
@@ -48,11 +93,14 @@ These variants can all use same asset or different ones, as shown below.
 {{ craft.images.pictureMultiple(settings, htmlAttributes) }}
 ```
 
-While we defined two variants, this code will actually generate **four** sources, because each variants will have webp and original format source. Browsers will choose the proper version depending on their [webp support](https://caniuse.com/#feat=webp) and ignore other one, so you don't have to worry about downloading redundant versions of image. 
+As you can see, each variant contains:
 
-For the browsers that don't [support picture element](https://caniuse.com/#feat=picture) - there is also fallback `<img>` tag inside. This tag is also important because we need to use it to apply HTMl attributes such as class to our image. We cannot do that directly on `<picture>`. 
+* asset object - each source can have different asset or we can use one same one for all of them.
+* transform settings.
+* media query value defining when this source should be shown. We can use `media` key for explicit media query.
 
-Here's the generated HTML:
+
+Here's the generated HTML. While we defined two variants, this `<picture>` has four sources, because each variants will have both webp and regualr format `<source>`.
 
 ```html
 <picture>
@@ -64,7 +112,7 @@ Here's the generated HTML:
 </picture>
 ```
 
-Instead of setting breakpoint explictly by using  `media` and setting it to value like `(max-width: 1023px)`, you may also use `min` and `max` for each source:
+Instead of setting breakpoint explictly by using `media` and setting it to value like `(max-width: 1023px)`, you may also use `min` and `max` for each source:
 
 ```twig
 {% set someAsset1 = entry.imageField1.one() %}
@@ -96,6 +144,8 @@ Instead of setting breakpoint explictly by using  `media` and setting it to valu
 ```
 
 This will generate identical HTML as with using `media` setting.
+
+If you want your image to not display anything on specific media query, omit `transform` from this variant and set `asset` to null or also omit it. This `<source>` will be generated as the transparent pixel.
 
 ## Width and height attributes
 
