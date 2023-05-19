@@ -1,5 +1,10 @@
 # Image toolbox Changelog
 
+## 2.1.2 - 2023.05.19
+### Changed
+* Default placeholder mode now is now **file** - compared to pre 2.1.0 **svg** mode. If you want to keep using SVG mode, set `placeholderMode` to `svg` in `image-toolbox.php` config file.
+* Before 2.1.0, placeholder **url** mode was enabled just by entering URL value into `placeholderUrl` plugin setting. Now it also needs to be enabled by setting `placeholderMode` to `url` in `image-toolbox.php` config file.
+
 ## 2.1.0 - 2023.05.19
 ### Added
 * Added pictureMultiple() method, allowing for generating picture element with each source using different asset.
