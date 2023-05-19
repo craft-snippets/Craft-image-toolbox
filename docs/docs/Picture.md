@@ -167,11 +167,12 @@ Generating **webp** version of image by the plugin actually depends on a few thi
 
 This methods were used before `pictureMultiple()` was introduced. They are kept for the sake of backwards compatibility. They do not allow using separate assets on multiple breakpoints - all breakpoints share same asset. 
 
+Please note that in case of the missing asset, when placeholder is generated, `<picture>` outputted by these methods will have `is-placeholder` CSS class applied. This behaviour is missing from `pictureMultuple()` method, since it can use multiple assets, some of which are missing and some of which are not. Placeholder CSS class can be modified using `placeholderClass` config setting.
+
 ### picture() method
 
 This method can be used for generating `<picture>` with single variant (which will be generatet as two sources - webp and one in original format).
 
-```twig
 In the example below, `someAsset` is asset object containing image, and `transformSettings` is array of [image transform settings](https://craftcms.com/docs/3.x/image-transforms.html).
 
 ```twig

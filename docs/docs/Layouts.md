@@ -1,6 +1,6 @@
 # Transform layouts
 
-If you use some specific image transforms in multiple template files, you can define them in the config file, along with the breakpoint values. To do that, use `transformLayouts` setting:
+If you use some specific image transforms in multiple template files and want to avoid code duplication, you can define them in the plugin config file, along with the breakpoint values. To do that, use `transformLayouts` setting:
 
 ```php
 'transformLayouts' => [
@@ -34,7 +34,7 @@ Our transform layout handle is `someHandle`. Here's how to use it in the templat
 {{craft.images.layout([assetForVariant1, assetForVariant2], 'someHandle')}}
 ```
 
-As you can see, we passed array of two assets to the method (one for each variant), without defining any other settings within Twig - everything else is defined in the config file. If you want, you can also pass only one asset to the function - it will be reused for every variant ddefined in the `variants` file.
+As you can see, we passed array of two assets to the method (one for each variant), without defining any other settings within Twig - everything else is defined in the config file. If you want, you can also pass only one asset to the function - it will be reused for every variant defined in the `variants` file.
 
 ```twig
 {{craft.images.layout(someAsset, 'someHandle')}}
