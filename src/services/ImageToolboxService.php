@@ -357,7 +357,10 @@ class ImageToolboxService extends Component
         if(is_null($asset)){
             // if both height width missing
             if(!isset($transform['width']) && !isset($transform['height'])){
-                return null;
+                return [
+                    'width' => 0,
+                    'height' => 0,
+                ];
             }
             //  if only width/height missing, placeholder will be square
             if(isset($transform['width']) && !isset($transform['height'])){
@@ -467,12 +470,10 @@ class ImageToolboxService extends Component
             'src' => $fallback_src,
         ];
 
-        if(ImageToolbox::$plugin->getSettings()->useWidthHeightAttributesOnFallback == true){
-            if(!is_null(self::getWidthHeightAttrs($image, $fallback_transform))){
-                $fallback_attributes['width'] = self::getWidthHeightAttrs($image, $fallback_transform)['width'];
-                $fallback_attributes['height'] = self::getWidthHeightAttrs($image, $fallback_transform)['height'];
-            }            
-        }
+        if(!is_null(self::getWidthHeightAttrs($image, $fallback_transform))){
+            $fallback_attributes['width'] = self::getWidthHeightAttrs($image, $fallback_transform)['width'];
+            $fallback_attributes['height'] = self::getWidthHeightAttrs($image, $fallback_transform)['height'];
+        }            
 
         // add provided attributes
         if(!is_null($attributes)){
@@ -538,11 +539,9 @@ class ImageToolboxService extends Component
                 $fallback_attributes['class'] = $placeholder_class;
             }
 
-            if(ImageToolbox::$plugin->getSettings()->useWidthHeightAttributesOnFallback == true){
-                if(!is_null(self::getWidthHeightAttrs(null, $fallback_transform))){
-                    $fallback_attributes['width'] = self::getWidthHeightAttrs(null, $fallback_transform)['width'];
-                    $fallback_attributes['height'] = self::getWidthHeightAttrs(null, $fallback_transform)['height'];
-                }
+            if(!is_null(self::getWidthHeightAttrs(null, $fallback_transform))){
+                $fallback_attributes['width'] = self::getWidthHeightAttrs(null, $fallback_transform)['width'];
+                $fallback_attributes['height'] = self::getWidthHeightAttrs(null, $fallback_transform)['height'];
             }
 
             $html_string .= "\n";
@@ -582,6 +581,7 @@ class ImageToolboxService extends Component
         foreach ($layout['variants'] as $index => $singleVariant) {
             if(isset($images[$index])){
                 $layout['variants'][$index]['asset'] = $images[$index];
+            // if not enough images for all variants, use the last image
             }else{
                 $layout['variants'][$index]['asset'] = end($images);
             }
@@ -731,13 +731,11 @@ class ImageToolboxService extends Component
         ];
 
         // width height
-        if(ImageToolbox::$plugin->getSettings()->useWidthHeightAttributesOnFallback == true){
-            $fallbackWidthHeight = self::getWidthHeightAttrs($fallbackAsset, $transfromSettings);
-            if(!is_null($fallbackWidthHeight)){
-                $fallBackHtmlAttributes['width'] = $fallbackWidthHeight['width'];
-                $fallBackHtmlAttributes['height'] = $fallbackWidthHeight['height'];
-            }            
-        }
+        $fallbackWidthHeight = self::getWidthHeightAttrs($fallbackAsset, $transfromSettings);
+        if(!is_null($fallbackWidthHeight)){
+            $fallBackHtmlAttributes['width'] = $fallbackWidthHeight['width'];
+            $fallBackHtmlAttributes['height'] = $fallbackWidthHeight['height'];
+        }            
 
 
         // html attrs provided from template

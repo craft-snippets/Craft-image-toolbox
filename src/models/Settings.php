@@ -41,5 +41,4 @@ class Settings extends Model
 
     public $suppressExceptions = false;
     public $useWidthHeightAttributes = false;
-    public $useWidthHeightAttributesOnFallback = false;
 }
