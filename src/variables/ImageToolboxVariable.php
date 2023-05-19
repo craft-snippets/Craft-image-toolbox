@@ -34,14 +34,15 @@ class ImageToolboxVariable
      * @param array|null $attributes
      * @return \Twig\Markup|null
      */
-    public function picture(?Asset $image, array $transform = [], array $attributes = null): ?\Twig\Markup
+    public function picture(?Asset $image, array|string $transform = [], array $attributes = null): ?\Twig\Markup
     {
+        Craft::$app->getDeprecator()->log('image-toolbox.picture', 'The `picture()` method of Image toolbox plugin is deprecated. Use pictureMultiple() instead.');
         $sources = [
             [
                 'transform' => $transform,
             ]
         ];
-        return ImageToolboxService::getPicture($image, $sources, $attributes);
+        return ImageToolbox::getInstance()->imageToolbox->getPicture($image, $sources, $attributes);
     }
 
     /**
@@ -56,6 +57,7 @@ class ImageToolboxVariable
      */
     public function pictureMedia(?Asset $image, array $transforms, array $common_setings = null, array $attributes = null): ?\Twig\Markup
     {
+        Craft::$app->getDeprecator()->log('image-toolbox.pictureMedia', 'The `pictureMedia()` method of Image toolbox plugin is deprecated. Use pictureMultiple() instead.');
         $sources = [];
         foreach ($transforms as $media => $transform) {
             $sources[] = Array(
@@ -63,7 +65,7 @@ class ImageToolboxVariable
                 'transform' => !is_null($common_setings) ? array_merge($common_setings, $transform) : $transform,
             );
         }
-        return ImageToolboxService::getPicture($image, $sources, $attributes);
+        return ImageToolbox::getInstance()->imageToolbox->getPicture($image, $sources, $attributes);
     }
 
     /**
@@ -78,6 +80,7 @@ class ImageToolboxVariable
      */
     public function pictureMax(?Asset $image, array $transforms, array $common_setings = null, array $attributes = null): ?\Twig\Markup
     {
+        Craft::$app->getDeprecator()->log('image-toolbox.pictureMax', 'The `pictureMax()` method of Image toolbox plugin is deprecated. Use pictureMultiple() instead.');
         ksort($transforms);
         $sources = [];
         foreach ($transforms as $media => $transform) {
@@ -86,7 +89,7 @@ class ImageToolboxVariable
                 'transform' => !is_null($common_setings) ? array_merge($common_setings, $transform) : $transform,
             );
         }
-        return ImageToolboxService::getPicture($image, $sources, $attributes);
+        return ImageToolbox::getInstance()->imageToolbox->getPicture($image, $sources, $attributes);
     }
 
     /**
@@ -101,6 +104,7 @@ class ImageToolboxVariable
      */
     public function pictureMin(?Asset $image, array $transforms, array $common_setings = null, array $attributes = null): ?\Twig\Markup
     {
+        Craft::$app->getDeprecator()->log('image-toolbox.pictureMin', 'The `pictureMin()` method of Image toolbox plugin is deprecated. Use pictureMultiple() instead.');
         krsort($transforms);
         $sources = [];
         foreach ($transforms as $media => $transform) {
@@ -109,7 +113,7 @@ class ImageToolboxVariable
                 'transform' => !is_null($common_setings) ? array_merge($common_setings, $transform) : $transform,
             );
         }
-        return ImageToolboxService::getPicture($image, $sources, $attributes);
+        return ImageToolbox::getInstance()->imageToolbox->getPicture($image, $sources, $attributes);
     }
 
     /**
@@ -118,9 +122,9 @@ class ImageToolboxVariable
      * @param array|null $transform
      * @return \Twig\Markup
      */
-    public function placeholder(?array $transform = null): \Twig\Markup
+    public function placeholder(string|array|null $transform = null): \Twig\Markup
     {
-        return ImageToolboxService::getPlaceholder($transform);
+        return ImageToolbox::getInstance()->imageToolbox->getPlaceholder($transform);
     }
 
     /**
@@ -131,9 +135,14 @@ class ImageToolboxVariable
      * @return \Twig\Markup|null
      * @throws \Twig\Error\RuntimeError
      */
-    public function layout(?Asset $image, string $layout_handle): ?\Twig\Markup
+    public function layout(object|array|null $image, string $layout_handle): ?\Twig\Markup
     {
-        return ImageToolboxService::getLayout($image, $layout_handle);
+        return ImageToolbox::getInstance()->imageToolbox->getLayout($image, $layout_handle);
+    }
+
+    public function pictureMultiple(array $sources, array $htmlAttributes = []): ?\Twig\Markup
+    {
+        return ImageToolbox::getInstance()->imageToolbox->getPictureMultiple($sources, $htmlAttributes);
     }
 
 }

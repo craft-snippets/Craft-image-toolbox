@@ -73,6 +73,11 @@ class ImageToolbox extends Plugin
             }
         );
 
+        $this->setComponents([
+            'imageToolbox' => \craftsnippets\imagetoolbox\services\ImageToolboxService::class,
+        ]);
+
+
     }
 
     protected function createSettingsModel(): ?craft\base\Model

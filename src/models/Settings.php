@@ -29,9 +29,17 @@ class Settings extends Model
     public $usePlaceholders = true;
     public $placeholderClass = 'is-placeholder';
     public $useImagerForSvg = false;
-    public $placeholderUrl = null;
+    public $placeholderUrl = '';
     public $transformLayouts = [];
     public $forcePlaceholders = false;
     public $useWidthHeightAttributes = false;
 
+    public $placeholderMode = 'file';
+    public $filePlaceholderPath = null;
+    public $filePlaceholderBackgroundColor = null;
+    public $filePlaceholderBackgroundOpacity = null;
+    public $filePlaceholderDirectory = 'placeholders';
+
+    public $suppressExceptions = false;
+    public $useWidthHeightAttributes = false;
 }
