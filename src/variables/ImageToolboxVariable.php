@@ -140,8 +140,15 @@ class ImageToolboxVariable
         return ImageToolbox::getInstance()->imageToolbox->getLayout($image, $layout_handle);
     }
 
-    public function pictureMultiple(array $sources, array $htmlAttributes = []): ?\Twig\Markup
+    public function pictureMultiple(array $sources, array $htmlAttributes = [], array $commonTransformSettings = []): ?\Twig\Markup
     {
+        // apply common settings to sources transforms
+        if(!empty($commonTransformSettings)){
+            foreach ($sources as $index => $source) {
+                $sources[$index]['transform'] = array_merge(($sources[$index]['transform'] ?? []), $commonTransformSettings);
+            }
+        }
+
         return ImageToolbox::getInstance()->imageToolbox->getPictureMultiple($sources, $htmlAttributes);
     }
 
