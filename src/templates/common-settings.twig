@@ -1,0 +1,509 @@
+{% import '_includes/forms' as forms %}
+
+<script>   
+function variantComponent() {
+    return {
+        variants: {{value.variants|json_encode|raw}},
+        namePrefix: '{{variantsNamePrefix|raw}}',
+        addVariant() {
+            this.variants.push({
+                transform: {
+                    mode: null,
+                    position: null,                    
+                    width: null,
+                    height: null,
+                    upscale: false,
+                    quality: 60,
+                    interlace: null,
+                    format: null,
+                },
+                breakpointType: 'min',
+                min: null,
+                max: null,
+                media: null,
+                qualitySelect: null,           
+            });
+            console.log(this.variants)
+        },
+        deleteVariant(index) {
+            this.variants = this.variants.filter((variant, variantIndex) => {
+                return index !== variantIndex
+            })
+        },
+        moveUp(index){
+          if (index > 0 && index < this.variants.length) {
+            const element = this.variants[index];
+            this.variants.splice(index, 1);
+            this.variants.splice(index - 1, 0, element);
+          }
+        },
+        moveDown(index){
+          if (index >= 0 && index < this.variants.length - 1) {
+            const element = this.variants[index];
+            this.variants.splice(index, 1);
+            this.variants.splice(index + 1, 0, element);
+          }
+        },
+        // changeQualityFromSelect(index){
+        //     this.variants[index]['transform']['quality'] = this.variants[index]['qualitySelect'];
+        // },
+        // changeQualityFromInput(inded)
+        // {
+        //     let options = [0, 10, 30, 60, 80, 100];
+
+        // }
+
+    };
+}
+</script>
+       
+{# somehow field inputs name attributes are not automatically namespaced, related to single quotes #}
+{% macro baseAlpineField(params, html) %}
+<div class="field">
+    {% if params.label is defined %}
+    <div class="heading">
+        <label
+
+        >
+            {{params.label}}
+        </label>
+    </div> 
+    {% endif %}
+    {% if params.instructions is defined %}
+    <div 
+        class="instructions"
+    >
+        <p>{{params.instructions}}</p>
+    </div>         
+    {% endif %}
+    <div class="input ltr">              
+        {{html|raw}}
+    </div>
+</div>      
+{% endmacro %}
+
+{% macro alpineTextInput(params) %}
+    {% set input %}
+        <input 
+            type="text" 
+            x-model="{{params.xmodel ?? null}}" 
+            :name="namePrefix+'{{params.name ?? null}}'"
+            value="{{params.value ?? null}}"
+            class="text"
+        >
+    {% endset %}
+    {{_self.baseAlpineField(params, input)}}
+{% endmacro %}
+
+{% macro alpineSelect(params) %}
+    {% set input %}
+        <div class="select">
+        <select :name="namePrefix+'{{params.name ?? null}}'" x-model="{{params.xmodel}}">
+            {% for option in params.options %}
+                <option value="{{option.value}}">
+                    {{option.label}}
+                </option>
+            {% endfor %}
+        </select>
+        </div>
+    {% endset %}
+    {{_self.baseAlpineField(params, input)}}
+{% endmacro %}
+
+
+{% macro alpineCheckbox(params) %}
+<div class="field checkboxfield">
+  <div class="input ltr">
+    <input type="hidden" :name="namePrefix+'{{params.name ?? null}}'" value="">
+    <input 
+        :id="{{params.id}}" 
+        type="checkbox" 
+        class="checkbox" 
+        :name="namePrefix+'{{params.name ?? null}}'" 
+        value="1" 
+        {# x-model="{{params.xmodel}}" #}
+        :checked="{{params.xmodel}} == true"
+    >
+    <label :for="{{params.id}}">{{params.label ?? null}}</label>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro qualitySelectAndInput(params) %}
+<div class="field checkboxfield">
+    <div class="heading">
+        <label>
+            {{params.label ?? null}}
+        </label>
+    </div>
+
+    <div class="flex flex-nowrap">
+
+{#         <div class="select">
+            <select x-model="variant.qualitySelect" @change="changeQualityFromSelect(index)">
+                {% for option in params.options %}
+                    <option value="{{option.value}}">
+                        {{option.label}}
+                    </option>
+                {% endfor %}
+            </select>
+        </div> #}
+
+        <div 
+            class="flex-grow" 
+            {# :class="variant.qualitySelect == 0 ? 'visually-hidden' : ''" #}
+        >
+            <input 
+                @change="changeQualityFromInput(index)"
+                type="number" 
+                class="ltr text" 
+                :name="namePrefix+'{{params.name ?? null}}'" 
+                x-model="{{params.xmodel}}"
+                size="5" 
+                autocomplete="off" 
+                min="1" 
+                max="100" 
+                dir="ltr"
+            >
+        </div>
+</div>    
+{% endmacro %}
+
+<div>
+
+    {# namespacing with field handle only when used in field and not settings #}
+    {% namespace name ?? null %}
+    {{ forms.selectField({
+        label: "Create the webp variants of the images"|t('search-toolbox'),
+        id: 'useWebp',
+        name: 'useWebp',
+        options: [
+            {
+                'value': 'none',
+                'label': 'Use the global settings'|t('image-toolbox'),
+            },
+            {
+                'value': 'enabled',
+                'label': 'Enabled'|t('image-toolbox'),
+            },        
+            {
+                'value': 'disabled',
+                'label': 'Disabled'|t('image-toolbox'),
+            },        
+        ],
+        value: value.useWebp,
+        errors: value.getErrors('useWebp'),
+    }) }}
+
+    {{ forms.selectField({
+        label: 'Add "width" and "height" attributes to the picture'|t('search-toolbox'),
+        id: 'useWidthHeight',
+        name: 'useWidthHeight',
+        options: [
+            {
+                'value': 'none',
+                'label': 'Use the global settings'|t('image-toolbox'),
+            },
+            {
+                'value': 'enabled',
+                'label': 'Enabled'|t('image-toolbox'),
+            },        
+            {
+                'value': 'disabled',
+                'label': 'Disabled'|t('image-toolbox'),
+            },        
+        ],
+        value: value.useWidthHeight,
+        errors: value.getErrors('useWidthHeight'),
+    }) }}
+    {% endnamespace %}
+
+
+    {# variants #}
+    <div x-data="variantComponent()" class="">
+
+        <div class="">
+            <template x-for="(variant, index) in variants" :key="index">
+                <div class="matrixblock">
+                    <div class="fields">
+
+                    {# breakpoint type #}
+                    {{_self.alpineSelect({
+                        label: 'Breakpont type'|t('app'),
+                        xmodel: 'variant.breakpointType',
+                        name: "[variants]['+index+'][breakpointType]",
+                        options: [
+                            {
+                                'value': 'min',
+                                'label': 'Minimum width'|t('image-toolbox'),
+                            },
+                            {
+                                'value': 'max',
+                                'label': 'Maximum width'|t('image-toolbox'),
+                            },
+                            {
+                                'value': 'media',
+                                'label': 'Media query'|t('image-toolbox'),
+                            },                           
+                        ],
+                    }) }}
+                    
+                    <template x-if="variant.breakpointType == 'min'">
+                    {{_self.alpineTextInput({
+                        label: 'Breakpoint - minimum width'|t('image-toolbox'),
+                        xmodel: 'variant.min',
+                        name: "[variants]['+index+'][min]",
+                    }) }}
+                    </template>
+
+                    <template x-if="variant.breakpointType == 'max'">
+                    {{_self.alpineTextInput({
+                        label: 'Breakpoint - maximum width'|t('image-toolbox'),
+                        xmodel: 'variant.max',
+                        name: "[variants]['+index+'][max]",
+                    }) }}
+                    </template>
+
+                    <template x-if="variant.breakpointType == 'media'">
+                    {{_self.alpineTextInput({
+                        label: 'Breakpoint - media query'|t('image-toolbox'),
+                        instructions: 'For example - "(min-width: 1024px)".',
+                        xmodel: 'variant.media',
+                        name: "[variants]['+index+'][media]",
+                    }) }}
+                    </template>
+
+                    {# ################################################################# #}
+
+                    {# mode #}
+                    {{_self.alpineSelect({
+                        label: 'Mode'|t('app'),
+                        xmodel: 'variant.transform.mode',
+                        name: "[variants]['+index+'][transform][mode]",
+                        options: [
+                            {
+                                'value': 'crop',
+                                'label': 'Crop'|t('app'),
+                            },
+                            {
+                                'value': 'fit',
+                                'label': 'Fit'|t('app'),
+                            },
+                            {
+                                'value': 'letterbox',
+                                'label': 'Letterbox'|t('app'),
+                            },
+                            {
+                                'value': 'stretch',
+                                'label': 'Stretch'|t('app'),
+                            },                            
+                        ],
+                    }) }}
+
+                    {# position #}
+                    {{_self.alpineSelect({
+                        label: 'Default Focal Point'|t('app'),
+                        xmodel: 'variant.transform.position',
+                        name: "[variants]['+index+'][transform][position]",
+                        options: [
+                            {
+                                'value': 'top-left',
+                                'label': 'Top-Left'|t('app'),
+                            },
+                            {
+                                'value': 'top-center',
+                                'label': 'Top-Center'|t('app'),
+                            },
+                            {
+                                'value': 'top-right',
+                                'label': 'Top-Right'|t('app'),
+                            },
+                            {
+                                'value': 'center-left',
+                                'label': 'Center-Left'|t('app'),
+                            },
+                            {
+                                'value': 'center-center',
+                                'label': 'Center-Center'|t('app'),
+                            },
+                            {
+                                'value': 'center-right',
+                                'label': 'Center-Right'|t('app'),
+                            },
+                            {
+                                'value': 'bottom-left',
+                                'label': 'Bottom-Left'|t('app'),
+                            },
+                            {
+                                'value': 'bottom-center',
+                                'label': 'Bottom-Center'|t('app'),
+                            },
+                            {
+                                'value': 'bottom-right',
+                                'label': 'Bottom-Right'|t('app'),
+                            },
+
+                        ],
+                    }) }}                    
+
+                    {# width #}
+                    {{_self.alpineTextInput({
+                        label: 'Width'|t('app'),
+                        xmodel: 'variant.transform.width',
+                        name: "[variants]['+index+'][transform][width]",
+                    }) }}
+
+                    {# height #}
+                    {{_self.alpineTextInput({
+                        label: 'Height'|t('app'),
+                        xmodel: 'variant.transform.height',
+                        name: "[variants]['+index+'][transform][height]",
+                    }) }}   
+
+                    {# upscaling #}
+                    {{_self.alpineCheckbox({
+                        label: 'Allow Upscaling'|t('app'),
+                        xmodel: 'variant.transform.upscale',
+                        name: "[variants]['+index+'][transform][upscale]",
+                        id: "'upscale'+index",
+                    }) }}                      
+
+                    {# quality #}
+                    {{_self.qualitySelectAndInput({
+                        options: [
+                            {
+                                'value': 0,
+                                'label': 'Auto'|t('app'),
+                            },
+                            {
+                                'value': 10,
+                                'label': 'Low'|t('app'),
+                            },
+                            {
+                                'value': 30,
+                                'label': 'Medium'|t('app'),
+                            },
+                            {
+                                'value': 60,
+                                'label': 'High'|t('app'),
+                            },
+                            {
+                                'value': 80,
+                                'label': 'Very High'|t('app'),
+                            },
+                            {
+                                'value': 100,
+                                'label': 'Maximum'|t('app'),
+                            },                                                            
+                        ],
+                        name: "[variants]['+index+'][transform][quality]",
+                        xmodel: 'variant.transform.quality',
+                        label: 'Quality'|t('app'),
+                    }) }}
+
+                    {# interlace #}
+                    {{_self.alpineSelect({
+                        label: 'Interlacing'|t('app'),
+                        xmodel: 'variant.transform.interlace',
+                        name: "[variants]['+index+'][transform][interlace]",
+                        options: [
+                            {
+                                'value': 'none',
+                                'label': 'None'|t('app'),
+                            },
+                            {
+                                'value': 'line',
+                                'label': 'Line'|t('app'),
+                            },
+                            {
+                                'value': 'plane',
+                                'label': 'Plane'|t('app'),
+                            },
+                            {
+                                'value': 'partition',
+                                'label': 'Partition'|t('app'),
+                            },
+
+                        ],
+                    }) }}  
+
+                    {# format #}
+                    {{_self.alpineSelect({
+                        label: 'Format'|t('app'),
+                        xmodel: 'variant.transform.format',
+                        name: "[variants]['+index+'][transform][format]",
+                        options: [
+                            {
+                                'value': '',
+                                'label': 'Auto'|t('app'),
+                            },
+                            {
+                                'value': 'jpg',
+                                'label': 'jpg'|t('app'),
+                            },
+                            {
+                                'value': 'png',
+                                'label': 'png'|t('app'),
+                            },
+                            {
+                                'value': 'gif',
+                                'label': 'gif'|t('app'),
+                            },
+                            {
+                                'value': 'webp',
+                                'label': 'webp'|t('app'),
+                            },
+                            {
+                                'value': 'avif',
+                                'label': 'avif'|t('app'),
+                            },                            
+                        ],
+                    }) }}  
+
+                    </div>
+
+                    {# buttons #}
+                    <div style="display: flex;">
+                        <!-- delete -->
+                        <button @click.prevent="deleteVariant(index)" class="btn" data-icon="trash">
+                            {{'Delete variant'|t}}
+                        </button>
+                        &nbsp;
+                        <button 
+                            @click.prevent="moveUp(index)" 
+                            class="btn arrow-button" 
+                            :disabled="index == 0"
+                            title="{{'Move variant up'|t('image-toolbox')}}"
+                        >
+                            &#9650;
+                        </button>
+                        &nbsp;
+                        <button 
+                            @click.prevent="moveDown(index)" 
+                            class="btn arrow-button" 
+                            :disabled="index + 1 == variants.length"
+                            title="{{'Move variant down'|t('image-toolbox')}}"
+                        >
+                            &#9660;
+                        </button>                        
+                    </div>
+
+                    </div>
+                </div>
+            </template>
+        </div>
+        
+        <button @click.prevent="addVariant()" class="btn" data-icon="plus">
+            {{'Add variant'|t('image-toolbox')}}
+        </button>
+
+
+    </div>
+</div>
+
+<style>
+.arrow-button[disabled]{
+    opacity: 0.3;
+    pointer-events: none;
+}
+</style>

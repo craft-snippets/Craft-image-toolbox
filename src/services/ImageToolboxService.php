@@ -24,6 +24,7 @@ use craft\elements\Asset;
 use Imagine\Gd\Imagine as GdImagine;
 use Imagine\Imagick\Imagine as ImagickImagine;
 
+use craftsnippets\imagetoolbox\fields\ImageVariantsField;
 
 /**
  * @author    Piotr Pogorzelski
@@ -36,6 +37,10 @@ class ImageToolboxService extends Component
     const PLACEHOLDER_MODE_FILE = 'file';
     const PLACEHOLDER_MODE_URL = 'url';
     const PLACEHOLDER_MODE_SVG = 'svg';
+
+    const SETTING_NONE = 'none';
+    const SETTING_ENABLED = 'enabled';
+    const SETTING_DISABLED = 'disabled';
 
     /**
      * If image can be transformed using Imager.
@@ -232,7 +237,7 @@ class ImageToolboxService extends Component
      * @param array $transform
      * @return bool
      */
-    private function canAddWebpSource(Asset $image, array $transform): bool
+    private function canAddWebpSource(Asset $image, array $transform, $overwrite = self::SETTING_NONE): bool
     {
 
         // if image is webp already and we dont want to transform it into other format
@@ -245,13 +250,22 @@ class ImageToolboxService extends Component
             return false;
         }
 
+        // if variant field overwrites it
+        if($overwrite == self::SETTING_DISABLED){
+            return false;
+        }
+
         // if we explictly state in trsnaform settings that we dont want to transform it
         if(isset($transform['useWebp']) && $transform['useWebp'] == false){
             return false;
         }
 
         // if global settings allow it, server supports webp and iamge is not svg 
-        if(ImageToolbox::$plugin->getSettings()->useWebp && $this->serverSupportsWebp() && $image->getMimeType() != 'image/svg+xml'){
+        if(
+            (ImageToolbox::$plugin->getSettings()->useWebp || $overwrite == self::SETTING_ENABLED) && 
+            $this->serverSupportsWebp() && 
+            $image->getMimeType() != 'image/svg+xml'
+        ){
             return true;
         }
 
@@ -345,11 +359,14 @@ class ImageToolboxService extends Component
         return $image;
     }
 
-    private static function getWidthHeightAttrs($asset, $transform)
+    private static function getWidthHeightAttrs($asset, $transform, $overwrite = self::SETTING_NONE)
     {   
 
         // if disabled
-        if(ImageToolbox::$plugin->getSettings()->useWidthHeightAttributes == false){
+        if(
+            (ImageToolbox::$plugin->getSettings()->useWidthHeightAttributes == false && $overwrite == self::SETTING_NONE) ||
+            $overwrite == self::SETTING_DISABLED
+        ){
             return null;
         }
 
@@ -600,7 +617,112 @@ class ImageToolboxService extends Component
 
     }
 
-    public function getPictureMultiple(array $sources, array $htmlAttributes): ?\Twig\Markup
+    private function getVariantSettingsFieldFromImage(Asset $image, ?string $fieldHandle)
+    {
+        $fields = $image->fieldLayout->customFields;
+        $variantFields = array_filter($fields, function($single){
+            return get_class($single) == ImageVariantsField::class;
+        });
+
+        if(!is_null($fieldHandle)){
+            $variantFields = array_filter($fields, function($single) use($fieldHandle){
+                return $single->handle == $fieldHandle;
+            });            
+        }
+
+        if(!empty($variantFields)){
+            $field = reset($variantFields);
+            return $field;
+        }
+        return null;
+    }
+
+    private function getSourcesFromSettings($variants, $image)
+    {
+        $sources = [];
+        foreach ($variants as $variant) {
+            $source = [
+                'asset' => $image,
+                // 'transform' => $variant,
+                'transform' => $variant['transform'],
+            ];
+            if($variant['breakpointType'] == 'min'){
+                $source['min'] = $variant['min'];
+            }
+            if($variant['breakpointType'] == 'max'){
+                $source['max'] = $variant['max'];
+            }
+            if($variant['breakpointType'] == 'media'){
+                $source['media'] = $variant['media'];
+            }                                        
+            $sources[] = $source;
+        }
+        return $sources;
+    }
+
+    public function getPictureFromAsset(?Asset $image, ?string $fieldHandle, array $htmlAttributes)
+    {
+        // if no asset and no settings field defined, return nothing
+        if(is_null($image) && is_null($variantsFieldHandle)){
+            return null;
+        }
+
+        // get variants field
+        if(!is_null($image)){
+            $variantField = $this->getVariantSettingsFieldFromImage($image, $fieldHandle);
+        }else{
+            $variantField = Craft::$app->getFields()->getFieldByHandle($fieldHandle);
+        }
+
+        // create sources
+        if(is_null($variantField)){
+            // no field, dont apply transform
+            $sources = [
+                'asset' => $image,
+            ];
+        }else{
+            // get from specific asset
+            if(!is_null($image) && !empty($image->getFieldValue($variantField->handle)['variants'])){
+                $sources = $this->getSourcesFromSettings($image->getFieldValue($variantField->handle)['variants'], $image);
+            // get from field settings
+            }elseif(!empty($variantField->variants)){
+                $sources = $this->getSourcesFromSettings($variantField->variants, $image);
+            // no variant defined, dont apply transform
+            }else{
+                $sources = [
+                    'asset' => $image,
+                ];
+            }
+        }
+
+        // if use webp
+        $useWebp = self::SETTING_NONE;
+        if(!is_null($variantField)){
+            // field settings
+            $useWebp = $variantField->useWebp;
+            // specific asset
+            if(!is_null($image) && $image->getFieldValue($variantField->handle)['useWebp'] != self::SETTING_NONE){
+                $useWebp = $image->getFieldValue($variantField->handle)['useWebp'];
+            }
+        }
+
+        // if use width height
+        $useWidthHeight = self::SETTING_NONE;
+        if(!is_null($variantField)){
+            // field settings
+            $useWidthHeight = $variantField->useWidthHeight;
+            // specific asset
+            if(!is_null($image) && $image->getFieldValue($variantField->handle)['useWidthHeight'] != self::SETTING_NONE){
+                $useWidthHeight = $image->getFieldValue($variantField->handle)['useWidthHeight'];
+            }            
+        }
+
+        // return
+        $html = $this->getPictureMultiple($sources, $htmlAttributes, $useWebp, $useWidthHeight);
+        return $html;
+    }
+
+    public function getPictureMultiple(array $sources, array $htmlAttributes, $settingWebp = self::SETTING_NONE, $useWidthHeight = self::SETTING_NONE): ?\Twig\Markup
     {
         $htmlString = '';
 
@@ -665,7 +787,10 @@ class ImageToolboxService extends Component
             $transfromSettings = $singleSource['transform'];
 
             // webp version
-            if(!is_null($singleSource['asset']) && $this->canAddWebpSource($singleSource['asset'], $transfromSettings)){
+            if(
+                !is_null($singleSource['asset']) && 
+                $this->canAddWebpSource($singleSource['asset'], $transfromSettings, $settingWebp)
+            ){
 
                 // force webp
                 $transformWebp = array_merge($transfromSettings, ['format' => 'webp']);
@@ -685,7 +810,7 @@ class ImageToolboxService extends Component
                 }
 
                 // width height
-                $webpWidthHeight = self::getWidthHeightAttrs($singleSource['asset'], $transfromSettings);
+                $webpWidthHeight = self::getWidthHeightAttrs($singleSource['asset'], $transfromSettings, $useWidthHeight);
                 if(!is_null($webpWidthHeight)){
                     $webpSourceAttributes['width'] = $webpWidthHeight['width'];
                     $webpSourceAttributes['height'] = $webpWidthHeight['height'];
@@ -711,7 +836,7 @@ class ImageToolboxService extends Component
             }
 
             // width height
-            $widthHeight = self::getWidthHeightAttrs($singleSource['asset'], $transfromSettings);
+            $widthHeight = self::getWidthHeightAttrs($singleSource['asset'], $transfromSettings, $useWidthHeight);
             if(!is_null($widthHeight)){
                 $sourceAttributes['width'] = $widthHeight['width'];
                 $sourceAttributes['height'] = $widthHeight['height'];
@@ -731,7 +856,7 @@ class ImageToolboxService extends Component
         ];
 
         // width height
-        $fallbackWidthHeight = self::getWidthHeightAttrs($fallbackAsset, $transfromSettings);
+        $fallbackWidthHeight = self::getWidthHeightAttrs($fallbackAsset, $transfromSettings, $useWidthHeight);
         if(!is_null($fallbackWidthHeight)){
             $fallBackHtmlAttributes['width'] = $fallbackWidthHeight['width'];
             $fallBackHtmlAttributes['height'] = $fallbackWidthHeight['height'];

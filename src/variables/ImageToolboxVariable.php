@@ -152,4 +152,12 @@ class ImageToolboxVariable
         return ImageToolbox::getInstance()->imageToolbox->getPictureMultiple($sources, $htmlAttributes);
     }
 
+    public function pictureFromAsset(?Asset $image, ?string $variantsFieldHandle = null, array $htmlAttributes = []): ?\Twig\Markup
+    {
+        if(!ImageToolbox::getInstance()->isProEdition()){
+            throw new \Exception('The functionality of defining picture element configurations in the control panel requires the PRO edition of the plugin.');
+        }
+        return ImageToolbox::getInstance()->imageToolbox->getPictureFromAsset($image, $variantsFieldHandle, $htmlAttributes);
+    }
+
 }
