@@ -722,7 +722,7 @@ class ImageToolboxService extends Component
         return $html;
     }
 
-    public function getPictureMultiple(array $sources, array $htmlAttributes, $settingWebp = self::SETTING_NONE, $useWidthHeight = self::SETTING_NONE): ?\Twig\Markup
+    public function getPictureMultiple(array $sources, array $htmlAttributes, $settingWebp = self::SETTING_NONE, $settingWidthHeight = self::SETTING_NONE): ?\Twig\Markup
     {
         $htmlString = '';
 
@@ -810,7 +810,7 @@ class ImageToolboxService extends Component
                 }
 
                 // width height
-                $webpWidthHeight = self::getWidthHeightAttrs($singleSource['asset'], $transfromSettings, $useWidthHeight);
+                $webpWidthHeight = self::getWidthHeightAttrs($singleSource['asset'], $transfromSettings, $settingWidthHeight);
                 if(!is_null($webpWidthHeight)){
                     $webpSourceAttributes['width'] = $webpWidthHeight['width'];
                     $webpSourceAttributes['height'] = $webpWidthHeight['height'];
@@ -836,7 +836,7 @@ class ImageToolboxService extends Component
             }
 
             // width height
-            $widthHeight = self::getWidthHeightAttrs($singleSource['asset'], $transfromSettings, $useWidthHeight);
+            $widthHeight = self::getWidthHeightAttrs($singleSource['asset'], $transfromSettings, $settingWidthHeight);
             if(!is_null($widthHeight)){
                 $sourceAttributes['width'] = $widthHeight['width'];
                 $sourceAttributes['height'] = $widthHeight['height'];
@@ -856,7 +856,7 @@ class ImageToolboxService extends Component
         ];
 
         // width height
-        $fallbackWidthHeight = self::getWidthHeightAttrs($fallbackAsset, $transfromSettings, $useWidthHeight);
+        $fallbackWidthHeight = self::getWidthHeightAttrs($fallbackAsset, $transfromSettings, $settingWidthHeight);
         if(!is_null($fallbackWidthHeight)){
             $fallBackHtmlAttributes['width'] = $fallbackWidthHeight['width'];
             $fallBackHtmlAttributes['height'] = $fallbackWidthHeight['height'];

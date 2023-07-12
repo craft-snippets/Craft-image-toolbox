@@ -90,6 +90,7 @@ function variantComponent() {
             :name="namePrefix+'{{params.name ?? null}}'"
             value="{{params.value ?? null}}"
             class="text"
+            style="width: 100%;"
         >
     {% endset %}
     {{_self.baseAlpineField(params, input)}}
@@ -222,9 +223,9 @@ function variantComponent() {
     {# variants #}
     <div x-data="variantComponent()" class="">
 
-        <div class="">
+        <div class="" style="display: flex;flex-wrap: wrap;gap: 1rem;">
             <template x-for="(variant, index) in variants" :key="index">
-                <div class="matrixblock">
+                <div class="matrixblock" style="min-width: 21rem;">
                     <div class="fields">
 
                     {# breakpoint type #}
