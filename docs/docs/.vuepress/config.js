@@ -12,6 +12,7 @@ module.exports = {
         sidebar: [
             ['/', 'Introduction'],
             ['/Picture', 'Outputting images'],
+            ['/Field', 'Image variants field'],
             ['/Placeholders', 'Placeholders'],
             ['/Layouts', 'Transform layouts'],
             ['/Methods', 'Methods list'],

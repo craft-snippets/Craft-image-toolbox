@@ -13,6 +13,8 @@ For detailed information about each method, please visit [Plugin functionality](
 
 	* `htmlAttributes` param is array of HTML attributes that will be applied to `<img>` tag within a `<picture>`. This array uses the same attribute definitions supported by using [renderTagAttributes](yii\helpers\BaseHtml::renderTagAttributes()).
 
+* `craft.images.pictureFromAsset(asset, fieldHandle, htmlAttributes)` - generates `<picture>` element from the asset which has Image variant field assigned. Only PRO edition.
+
 * `craft.images.layout(handle, htmlAttributes)` - generates `<picture>` element based on configuration within `transformLayouts` plugin config setting.
 
 * `craft.images.placeholder(transform)` - generates image placeholder based `width` and `height` settings.
