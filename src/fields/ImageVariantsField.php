@@ -107,27 +107,9 @@ class ImageVariantsField extends Field
         ];
     }
 
-    // custom
-
-
-    // for settings
-
-
-    // public function costomValidate($attribute, $params, $validator)
-    // {   
-    //     if(is_null($this->searchFormId)){
-    //         $this->addError($attribute, Craft::t('search-toolbox', 'Search form needs to be selected.'));
-    //         return;
-    //     }
-    //     if(is_null($this->getSearchForm())){
-    //         $this->addError($attribute, Craft::t('search-toolbox', 'Search form does not exist.'));
-    //     }
-    // }
-
     protected function defineRules(): array
     {
         $rules = parent::defineRules();
-        // $rules[] = [['costam'], 'costomValidate', 'skipOnEmpty' => false, 'skipOnError' => false];
         return $rules;
     }
 
