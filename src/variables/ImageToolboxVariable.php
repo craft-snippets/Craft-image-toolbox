@@ -36,7 +36,7 @@ class ImageToolboxVariable
      */
     public function picture(?Asset $image, array|string $transform = [], array $attributes = null): ?\Twig\Markup
     {
-        Craft::$app->getDeprecator()->log('image-toolbox.picture', 'The `picture()` method of Image toolbox plugin is deprecated. Use pictureMultiple() instead.');
+        Craft::$app->getDeprecator()->log('image-toolbox.picture', 'The `picture()` method of Image toolbox plugin is deprecated. Use pictureMultiple() instead. Please note that pictureMultiple() uses new syntax of the parameters - check the documentation.');
         $sources = [
             [
                 'transform' => $transform,
@@ -57,7 +57,7 @@ class ImageToolboxVariable
      */
     public function pictureMedia(?Asset $image, array $transforms, array $common_setings = null, array $attributes = null): ?\Twig\Markup
     {
-        Craft::$app->getDeprecator()->log('image-toolbox.pictureMedia', 'The `pictureMedia()` method of Image toolbox plugin is deprecated. Use pictureMultiple() instead.');
+        Craft::$app->getDeprecator()->log('image-toolbox.pictureMedia', 'The `pictureMedia()` method of Image toolbox plugin is deprecated. Use pictureMultiple() instead. Please note that pictureMultiple() uses new syntax of the parameters - check the documentation.');
         $sources = [];
         foreach ($transforms as $media => $transform) {
             $sources[] = Array(
@@ -80,7 +80,7 @@ class ImageToolboxVariable
      */
     public function pictureMax(?Asset $image, array $transforms, array $common_setings = null, array $attributes = null): ?\Twig\Markup
     {
-        Craft::$app->getDeprecator()->log('image-toolbox.pictureMax', 'The `pictureMax()` method of Image toolbox plugin is deprecated. Use pictureMultiple() instead.');
+        Craft::$app->getDeprecator()->log('image-toolbox.pictureMax', 'The `pictureMax()` method of Image toolbox plugin is deprecated. Use pictureMultiple() instead. Please note that pictureMultiple() uses new syntax of the parameters - check the documentation.');
         ksort($transforms);
         $sources = [];
         foreach ($transforms as $media => $transform) {
@@ -104,7 +104,7 @@ class ImageToolboxVariable
      */
     public function pictureMin(?Asset $image, array $transforms, array $common_setings = null, array $attributes = null): ?\Twig\Markup
     {
-        Craft::$app->getDeprecator()->log('image-toolbox.pictureMin', 'The `pictureMin()` method of Image toolbox plugin is deprecated. Use pictureMultiple() instead.');
+        Craft::$app->getDeprecator()->log('image-toolbox.pictureMin', 'The `pictureMin()` method of Image toolbox plugin is deprecated. Use pictureMultiple() instead. Please note that pictureMultiple() uses new syntax of the parameters - check the documentation.');
         krsort($transforms);
         $sources = [];
         foreach ($transforms as $media => $transform) {
