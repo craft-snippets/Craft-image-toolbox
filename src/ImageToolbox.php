@@ -117,8 +117,7 @@ class ImageToolbox extends Plugin
 
     public function isProEdition()
     {
-        // return $this->is(self::EDITION_PRO);
-        return true;
+        return $this->is(self::EDITION_PRO);
     }
 
 
