@@ -90,7 +90,11 @@ Note that you can ommit `transform` settings, if you want to only use webp varia
     class: 'some-class',
 } %}
 
-{{ craft.images.pictureMultiple(settings, htmlAttributes) }}
+{% set commonTransformSettings = {
+    quality: 90,
+} %}
+
+{{ craft.images.pictureMultiple(settings, htmlAttributes, commonTransformSettings) }}
 ```
 
 As you can see, each variant contains:
@@ -99,6 +103,7 @@ As you can see, each variant contains:
 * transform settings.
 * media query value defining when this source should be shown. We can use `media` key for explicit media query.
 
+We also added the third param to the `pictureMultiple()` method - `commonTransformSettings`. These are transform settings that will be applied to all variants. This parameter is optional and can be used to avoid repeating specific settings for each variants. They can be stored in the single array instead.
 
 Here's the generated HTML. While we defined two variants, this `<picture>` has four sources, because each variants will have both webp and regualr format `<source>`.
 

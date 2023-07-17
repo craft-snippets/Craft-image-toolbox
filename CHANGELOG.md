@@ -1,12 +1,13 @@
 # Image toolbox Changelog
 
-## 2.2.0 - 2023.07.16
+## 2.2.1 - 2023.07.17
 ### Added
 * Added the PRO edition of the plugin. This edition adds "Image variants" field which allows admins to define picture configuration in the control panel. Field is assigned to the asset source and picture configuration can be set for the whole asset source (using the field settings), or for the specific asset (using the field values).
-* Added third parameter to `pictureMultiple` function - "common settings". It allows to define transform settings that will be used in all sources of picture element.
+* Added the third parameter to `pictureMultiple` function - "common settings". It allows to define transform settings that will be used in all sources of picture element.
 
 ### Fixed
-* Updated deprecation message for deprecated functions. 
+* Updated deprecation message for deprecated functions, so developers are aware that new functions have different syntaxt compared to deprecated ones.
+* Fixed the issue with adding width and height attributes to sources causing performance issues.
 
 ## 2.1.2 - 2023.05.19
 ### Changed
