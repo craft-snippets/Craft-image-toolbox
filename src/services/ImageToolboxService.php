@@ -25,6 +25,7 @@ use Imagine\Gd\Imagine as GdImagine;
 use Imagine\Imagick\Imagine as ImagickImagine;
 
 use craftsnippets\imagetoolbox\fields\ImageVariantsField;
+use craft\helpers\Image as ImageHelper;
 
 /**
  * @author    Piotr Pogorzelski
@@ -272,91 +273,72 @@ class ImageToolboxService extends Component
         return false;
     }
 
-
-
-    // copied from ImageTransforms class
-
-    public static function generateTransformImageObj(
-        Asset $asset,
-        \craft\models\ImageTransform $transform,
-        // ?callable $heartbeat = null,
-        // ?BaseImage &$image = null,
-    // ): string {
-    ) {
-        $ext = strtolower($asset->getExtension());
-        // if (!Image::canManipulateAsImage($ext)) {
-        //     throw new ImageTransformException("Transforming .$ext files is not supported.");
-        // }
-
-        $format = $transform->format ?: \craft\helpers\ImageTransforms::detectTransformFormat($asset);
-        $imagesService = Craft::$app->getImages();
-
-        // $supported = match ($format) {
-        //     Format::ID_WEBP => $imagesService->getSupportsWebP(),
-        //     Format::ID_AVIF => $imagesService->getSupportsAvif(),
-        //     Format::ID_HEIC => $imagesService->getSupportsHeic(),
-        //     default => true,
-        // };
-
-        // if (!$supported) {
-        //     throw new ImageTransformException("The `$format` format is not supported on this server.");
-        // }
-
-        // $generalConfig = Craft::$app->getConfig()->getGeneral();
-        $imageSource = \craft\helpers\ImageTransforms::getLocalImageSource($asset);
-
-        if ($ext === 'svg' && $format !== 'svg') {
-            $size = max($transform->width, $transform->height) ?? 1000;
-            $image = $imagesService->loadImage($imageSource, true, $size);
-        } else {
-            $image = $imagesService->loadImage($imageSource);
+    private static function normalizeDimensions(int|string|null &$width, int|string|null &$height, $assetWidth, $assetHeight): void
+    {
+        // See if $width is in "XxY" format
+        if (preg_match('/^([\d]+|AUTO)x([\d]+|AUTO)/', (string)$width, $matches)) {
+            $width = $matches[1] !== 'AUTO' ? (int)$matches[1] : null;
+            $height = $matches[2] !== 'AUTO' ? (int)$matches[2] : null;
         }
 
-        // if ($image instanceof Raster) {
-        //     $image->setQuality($transform->quality ?: $generalConfig->defaultImageQuality);
-        //     $image->setHeartbeatCallback($heartbeat);
-        // }
-
-        if ($asset->getHasFocalPoint() && $transform->mode === 'crop') {
-            $position = $asset->getFocalPoint();
-        } elseif (!preg_match('/^(top|center|bottom)-(left|center|right)$/', $transform->position)) {
-            $position = 'center-center';
-        } else {
-            $position = $transform->position;
+        if (!$height || !$width) {
+            [$width, $height] = ImageHelper::calculateMissingDimension($width, $height, $assetWidth, $assetHeight);
         }
+    }
+
+    public static function calculateWidthHeight(Asset $asset, \craft\models\ImageTransform $transform) {
 
         $scaleIfSmaller = $transform->upscale ?? Craft::$app->getConfig()->getGeneral()->upscaleImages;
 
+        $targetWidth = $transform->width;
+        $targetHeight = $transform->height;
+
+        $assetWidth = $asset->width;
+        $assetHeight = $asset->height;
+
+        $finalWidth = null;
+        $finalHeight = null;
+
+        self::normalizeDimensions($targetWidth, $targetHeight, $assetWidth, $assetHeight);
         switch ($transform->mode) {
-            case 'letterbox':
-                if ($image instanceof \craft\image\Raster) {
-                    $image->scaleToFitAndFill(
-                        $transform->width,
-                        $transform->height,
-                        $transform->fill,
-                        $position,
-                        $scaleIfSmaller
-                    );
-                } else {
-                    // Craft::warning("Cannot add fill to non-raster images");
-                    $image->scaleToFit($transform->width, $transform->height, $scaleIfSmaller);
-                }
-                break;
+            
             case 'fit':
-                $image->scaleToFit($transform->width, $transform->height, $scaleIfSmaller);
+                // $image->scaleToFit($transform->width, $transform->height, $scaleIfSmaller);
+                if ($scaleIfSmaller || $assetWidth > $targetWidth || $assetHeight > $targetHeight) {
+                    $factor = max($assetWidth / $targetWidth, $assetHeight / $targetHeight);
+                    $finalWidth = round($assetWidth / $factor);
+                    $finalHeight = round($assetHeight / $factor);
+
+                }else{
+                    $finalWidth = $assetWidth;
+                    $finalHeight = $assetHeight;                    
+                }   
                 break;
             case 'stretch':
-                $image->resize($transform->width, $transform->height);
+            case 'letterbox':
+                $finalWidth = $targetWidth;
+                $finalHeight = $targetHeight;
                 break;
             default:
-                $image->scaleAndCrop($transform->width, $transform->height, $scaleIfSmaller, $position);
+                // $image->scaleAndCrop($transform->width, $transform->height, $scaleIfSmaller, $position);
+                if ($scaleIfSmaller || ($assetWidth > $targetWidth && $assetHeight > $targetHeight)) {
+                    // can upscale or destination size smaller than asset
+                    $finalWidth = $targetWidth;
+                    $finalHeight = $targetHeight;    
+                } elseif (($targetWidth > $assetWidth || $targetHeight > $assetHeight) && !$scaleIfSmaller) {
+                    $factor = max($targetWidth / $assetWidth, $targetHeight / $assetHeight);
+                    $finalHeight = round($targetHeight / $factor);
+                    $finalWidth = round($targetWidth / $factor);
+                } else {
+                    $finalWidth = $targetWidth;
+                    $finalHeight = $targetHeight;                        
+                }
         }
 
-        // if ($image instanceof Raster) {
-        //     $image->setInterlace($transform->interlace);
-        // }
-
-        return $image;
+        return [
+            'width' => $finalWidth,
+            'height' => $finalHeight,
+        ];
     }
 
     private static function getWidthHeightAttrs($asset, $transform, $overwrite = self::SETTING_NONE)
@@ -402,11 +384,8 @@ class ImageToolboxService extends Component
 
         // regular transform
         $transformSettings = new \craft\models\ImageTransform($transform);
-        $image = self::generateTransformImageObj($asset, $transformSettings);
-        return [
-            'width' => $image->width,
-            'height' => $image->height,
-        ];
+        return self::calculateWidthHeight($asset, $transformSettings);
+
 
     }
 
