@@ -3,6 +3,7 @@ return [
 	'Image variants' => 'Image variants',
 	'Image toolbox variant field should be onlhy assigned to assets.' => 'Image toolbox variant field should be onlhy assigned to assets.',
 	'Breakpont type' => 'Breakpont type',
+	'No breakpoint' => 'No breakpoint',
 	'Breakpoint - minimum width' => 'Breakpoint - minimum width',
 	'Breakpoint - maximum width' => 'Breakpoint - maximum width',
 	'Breakpoint - media query' => 'Breakpoint - media query',

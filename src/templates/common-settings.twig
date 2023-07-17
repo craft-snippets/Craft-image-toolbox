@@ -1,7 +1,9 @@
 {% import '_includes/forms' as forms %}
 
 <script>   
+
 function variantComponent() {
+
     return {
         variants: {{value.variants|json_encode|raw}},
         namePrefix: '{{variantsNamePrefix|raw}}',
@@ -16,8 +18,9 @@ function variantComponent() {
                     quality: 60,
                     interlace: null,
                     format: null,
+                    fill: null,
                 },
-                breakpointType: 'min',
+                breakpointType: 'none',
                 min: null,
                 max: null,
                 media: null,
@@ -52,6 +55,8 @@ function variantComponent() {
         //     let options = [0, 10, 30, 60, 80, 100];
 
         // }
+
+        
 
     };
 }
@@ -170,6 +175,46 @@ function variantComponent() {
 </div>    
 {% endmacro %}
 
+{% macro alpineColor(params) %}
+    {% set input %}
+        {% set containerAttributes = {
+            class: ['flex', 'color-container'],
+        } %}
+
+        {% tag 'div' with containerAttributes %}
+            {% tag 'div' with {
+                class: ['color', 'static'],
+            } %}
+
+                <div 
+                    class="color-preview"
+                    :style="{'background-color': variants[index]['transform']['fill']}"
+                >
+                <input 
+                    type="color" 
+                    class="color-preview-input" 
+                    x-model="{{params.xmodel ?? null}}"
+                >
+                </div>
+            {% endtag %}
+
+            <div class="color-input-container">
+                <span class="visually-hidden">{{ 'Color hex value'|t('app') }}</span>
+                <input 
+                    type="text" 
+                    x-model="{{params.xmodel ?? null}}" 
+                    :name="namePrefix+'{{params.name ?? null}}'"
+                    value="{{(params.value ?? null)|trim('#')}}"
+                    class="text"
+                    style="width: 100%;"
+                >
+            </div>
+        {% endtag %}
+
+    {% endset %}
+    {{_self.baseAlpineField(params, input)}}
+{% endmacro %}
+
 <div>
 
     {# namespacing with field handle only when used in field and not settings #}
@@ -234,6 +279,10 @@ function variantComponent() {
                         xmodel: 'variant.breakpointType',
                         name: "[variants]['+index+'][breakpointType]",
                         options: [
+                            {
+                                'value': 'none',
+                                'label': 'No breakpoint'|t('image-toolbox'),
+                            },                        
                             {
                                 'value': 'min',
                                 'label': 'Minimum width'|t('image-toolbox'),
@@ -301,7 +350,65 @@ function variantComponent() {
                         ],
                     }) }}
 
-                    {# position #}
+                    {# fill - letterbox #}
+                    <template x-if="variants[index]['transform']['mode'] == 'letterbox'">
+                    {{_self.alpineColor({
+                        label: 'Fill Color'|t('app'),
+                        xmodel: 'variant.transform.fill',
+                        name: "[variants]['+index+'][transform][fill]",
+                    }) }}
+                    </template>
+
+                    {# image position - letterbox #}
+                    <template x-if="variants[index]['transform']['mode'] == 'letterbox'">
+                    {{_self.alpineSelect({
+                        label: 'Image Position'|t('app'),
+                        xmodel: 'variant.transform.position',
+                        name: "[variants]['+index+'][transform][position]",
+                        options: [
+                            {
+                                'value': 'top-left',
+                                'label': 'Top-Left'|t('app'),
+                            },
+                            {
+                                'value': 'top-center',
+                                'label': 'Top-Center'|t('app'),
+                            },
+                            {
+                                'value': 'top-right',
+                                'label': 'Top-Right'|t('app'),
+                            },
+                            {
+                                'value': 'center-left',
+                                'label': 'Center-Left'|t('app'),
+                            },
+                            {
+                                'value': 'center-center',
+                                'label': 'Center-Center'|t('app'),
+                            },
+                            {
+                                'value': 'center-right',
+                                'label': 'Center-Right'|t('app'),
+                            },
+                            {
+                                'value': 'bottom-left',
+                                'label': 'Bottom-Left'|t('app'),
+                            },
+                            {
+                                'value': 'bottom-center',
+                                'label': 'Bottom-Center'|t('app'),
+                            },
+                            {
+                                'value': 'bottom-right',
+                                'label': 'Bottom-Right'|t('app'),
+                            },
+
+                        ],
+                    }) }}    
+                    </template>                         
+
+                    {# defualt focal point - crop #}
+                    <template x-if="variants[index]['transform']['mode'] == 'crop'">
                     {{_self.alpineSelect({
                         label: 'Default Focal Point'|t('app'),
                         xmodel: 'variant.transform.position',
@@ -345,7 +452,8 @@ function variantComponent() {
                             },
 
                         ],
-                    }) }}                    
+                    }) }}    
+                    </template>                
 
                     {# width #}
                     {{_self.alpineTextInput({
