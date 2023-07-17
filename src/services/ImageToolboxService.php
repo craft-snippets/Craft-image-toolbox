@@ -604,7 +604,7 @@ class ImageToolboxService extends Component
         });
 
         if(!is_null($fieldHandle)){
-            $variantFields = array_filter($fields, function($single) use($fieldHandle){
+            $variantFields = array_filter($variantFields, function($single) use($fieldHandle){
                 return $single->handle == $fieldHandle;
             });            
         }
@@ -642,7 +642,7 @@ class ImageToolboxService extends Component
     public function getPictureFromAsset(?Asset $image, ?string $fieldHandle, array $htmlAttributes)
     {
         // if no asset and no settings field defined, return nothing
-        if(is_null($image) && is_null($variantsFieldHandle)){
+        if(is_null($image) && is_null($fieldHandle)){
             return null;
         }
 
@@ -651,13 +651,18 @@ class ImageToolboxService extends Component
             $variantField = $this->getVariantSettingsFieldFromImage($image, $fieldHandle);
         }else{
             $variantField = Craft::$app->getFields()->getFieldByHandle($fieldHandle);
+            if(!is_null($variantField) && get_class($variantField) != ImageVariantsField::class){
+                $variantField = null;
+            }
         }
 
         // create sources
         if(is_null($variantField)){
             // no field, dont apply transform
             $sources = [
-                'asset' => $image,
+                [
+                    'asset' => $image,
+                ]
             ];
         }else{
             // get from specific asset
@@ -669,7 +674,9 @@ class ImageToolboxService extends Component
             // no variant defined, dont apply transform
             }else{
                 $sources = [
-                    'asset' => $image,
+                    [
+                        'asset' => $image,
+                    ]
                 ];
             }
         }
