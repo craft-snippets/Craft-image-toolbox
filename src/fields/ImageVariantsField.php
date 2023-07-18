@@ -26,7 +26,7 @@ class ImageVariantsField extends Field
 
     public static function displayName(): string
     {
-        return Craft::t('image-optimize', 'Image variants');
+        return Craft::t('image-toolbox', 'Image variants');
     }
 
     public function normalizeValue(mixed $value, ?ElementInterface $element = null): mixed
@@ -62,7 +62,7 @@ class ImageVariantsField extends Field
         $namespace = Craft::$app->view->namespaceInputId($id);
 
         if(get_class($element) != 'craft\elements\Asset'){
-            return Craft::t('image-optimize', 'Image toolbox variant field should be onlhy assigned to assets.');
+            return Craft::t('image-toolbox', 'Image toolbox variant field should be only assigned to assets.');
         }
 
         Craft::$app->view->registerAssetBundle(\craftsnippets\imagetoolbox\assetbundles\AlpineAsset::class);

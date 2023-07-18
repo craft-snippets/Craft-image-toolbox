@@ -2,7 +2,7 @@
     "name": "craftsnippets/craft-image-toolbox",
     "description": "Image toolbox",
     "type": "craft-plugin",
-    "version": "2.2.2",
+    "version": "2.2.3",
     "keywords": [
         "craft",
         "cms",
@@ -14,7 +14,7 @@
         "docs": "http://craftsnippets.com/docs/image-toolbox/",
         "issues": "https://github.com/craft-snippets/Craft-image-toolbox/issues"
     },
-    "license": "MIT",
+    "license": "proprietary",
     "authors": [
         {
             "name": "Piotr Pogorzelski",
