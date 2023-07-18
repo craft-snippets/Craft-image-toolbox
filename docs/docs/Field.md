@@ -17,7 +17,7 @@ You can also do the same for specific asset, using **field values**. Configurati
 To output `<picture`> element, you can use `pictureFromAsset()` method. This method takes in asset object (or `null` which will generate placeholder), handle of variant field assigned to asset source as parameters and optional array of the HTML attributes.
 
 ```twig
-{% set img = entry.someAssetField,one() %}
+{% set img = entry.someAssetField.one() %}
 {% set htmlAttributes = {
     class: 'some-class',
 } %}
