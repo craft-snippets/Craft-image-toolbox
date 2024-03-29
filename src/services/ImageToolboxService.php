@@ -1010,4 +1010,48 @@ class ImageToolboxService extends Component
         }  
     }
 
+    public function svgFile(string $filePath, array $attributes, array $options)
+    {
+        $defaultOptions = [
+            'removeFill' => false,
+            'removeStroke' => false,
+            'removeCss' => false,
+            'sanitize' => true,
+            'namespace' => true,
+        ];
+        $options = array_merge($defaultOptions, $options);
+
+        // file path
+        $directory = ImageToolbox::$plugin->getSettings()->svgDirectory;
+        if(!is_null($directory)){
+            $filePath = $directory . DIRECTORY_SEPARATOR . $filePath;
+        }else{
+            $filePath = Craft::getAlias('@root') . DIRECTORY_SEPARATOR . $filePath;
+        }
+        $filePath .= '.svg';
+
+        // sanitaze, namespace, resolve alias
+        $svgHtml = \craft\helpers\Html::svg($filePath, $options['sanitize'], $options['namespace']);
+
+        // remove fill atribute
+        if($options['removeFill'] == true){
+            $svgHtml = preg_replace('/' . 'fill' . '="[^"]*"/', '', $svgHtml);
+        }
+        if($options['removeStroke'] == true){
+            $svgHtml = preg_replace('/' . 'style' . '="[^"]*"/', '', $svgHtml);
+        }
+        if($options['removeCss'] == true){
+            $svgHtml = preg_replace('/' . 'stroke' . '="[^"]*"/', '', $svgHtml);
+            $svgHtml = preg_replace('/<style\b[^>]*>(.*?)<\/style>/is', '', $svgHtml);
+        }
+
+        // apply html attrs
+        if(!empty($attributes)){
+            $svgHtml = \craft\helpers\Html::modifyTagAttributes($svgHtml, $attributes);
+        }
+
+        $svgHtml = Template::raw($svgHtml);
+        return $svgHtml;
+    }
+
 }
