@@ -14,5 +14,6 @@ class ImageVariantsFieldModel extends Model
     
     public array $variants = [];
     public string $useWebp = self::SETTING_NONE;
+    public string $useAvif = self::SETTING_NONE;
     public string $useWidthHeight = self::SETTING_NONE;    
 }

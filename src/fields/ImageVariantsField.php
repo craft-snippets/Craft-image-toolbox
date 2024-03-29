@@ -20,6 +20,7 @@ class ImageVariantsField extends Field
     // field settings
     public array $variants = [];
     public string $useWebp = self::SETTING_NONE;
+    public string $useAvif = self::SETTING_NONE;
     public string $useWidthHeight = self::SETTING_NONE;
 
     // field values
@@ -43,6 +44,7 @@ class ImageVariantsField extends Field
             [
                 'variants' => $value['variants'] ?? null,
                 'useWebp' => $value['useWebp'] ?? null,
+                'useAvif' => $value['useAvif'] ?? null,
                 'useWidthHeight' => $value['useWidthHeight'] ?? null,
             ]
         );

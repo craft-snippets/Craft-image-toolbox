@@ -2,7 +2,7 @@
 return [
 	'Image variants' => 'Image variants',
 	'Image toolbox variant field should be only assigned to assets.' => 'Image toolbox variant field should be only assigned to assets.',
-	'Breakpont type' => 'Breakpont type',
+	'Breakpoint type' => 'Breakpoint type',
 	'No breakpoint' => 'No breakpoint',
 	'Breakpoint - minimum width' => 'Breakpoint - minimum width',
 	'Breakpoint - maximum width' => 'Breakpoint - maximum width',
@@ -14,6 +14,7 @@ return [
 	'Add variant' => 'Add variant',
 	'Delete variant' => 'Delete variant',
 	'Create the webp variants of the images' => 'Create the webp variants of the images',
+    'Create the avif variants of the images' => 'Create the avif variants of the images',
 	'Add "width" and "height" attributes to the picture' => 'Add "width" and "height" attributes to the picture',
 	'Use the global settings' => 'Use the global settings',
 	'Enabled' => 'Enabled',
