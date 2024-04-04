@@ -53,7 +53,7 @@ As you can see, `<picture>` has two sources - webp source and jpg source. Browse
 
 For the browsers that don't [support picture element](https://caniuse.com/#feat=picture) - there is also fallback `<img>` tag inside. This tag is also important because we need to use it to apply HTMl attributes such as class to our image. We cannot do that directly on the `<picture>`.
 
-Note that you can ommit `transform` settings, if you want to only use webp variant generation functionality of the plugin, without transforming source image in any other way.
+Note that you can omit `transform` settings, if you want to only use webp variant generation functionality of the plugin, without transforming source image in any other way.
 
 ## Picture with multiple breakpoint variants
 
@@ -105,7 +105,7 @@ As you can see, each variant contains:
 
 We also added the third param to the `pictureMultiple()` method - `commonTransformSettings`. These are transform settings that will be applied to all variants. This parameter is optional and can be used to avoid repeating specific settings for each variants. They can be stored in the single array instead.
 
-Here's the generated HTML. While we defined two variants, this `<picture>` has four sources, because each variants will have both webp and regualr format `<source>`.
+Here's the generated HTML. While we defined two variants, this `<picture>` has four sources, because each variants will have both webp and regular format `<source>`.
 
 ```html
 <picture>
@@ -170,13 +170,13 @@ Generating **webp** version of image by the plugin actually depends on a few thi
 
 ## Deprecated methods
 
-This methods were used before `pictureMultiple()` was introduced. They are kept for the sake of backwards compatibility. They do not allow using separate assets on multiple breakpoints - all breakpoints share same asset. 
+This methods were used before `pictureMultiple()` was introduced. They are kept for the sake of backwards compatibility. They do not allow using separate assets on multiple breakpoints - all breakpoints share the same asset. 
 
 Please note that in case of the missing asset, when placeholder is generated, `<picture>` outputted by these methods will have `is-placeholder` CSS class applied. This behaviour is missing from `pictureMultuple()` method, since it can use multiple assets, some of which are missing and some of which are not. Placeholder CSS class can be modified using `placeholderClass` config setting.
 
 ### picture() method
 
-This method can be used for generating `<picture>` with single variant (which will be generatet as two sources - webp and one in original format).
+This method can be used for generating `<picture>` with single variant (which will be generated as two sources - webp and one in original format).
 
 In the example below, `someAsset` is asset object containing image, and `transformSettings` is array of [image transform settings](https://craftcms.com/docs/3.x/image-transforms.html).
 
