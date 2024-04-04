@@ -2,7 +2,7 @@
     "name": "craftsnippets/craft-image-toolbox",
     "description": "Image toolbox",
     "type": "craft-plugin",
-    "version": "2.3.0",
+    "version": "3.0.0",
     "keywords": [
         "craft",
         "cms",
@@ -22,7 +22,7 @@
         }
     ],
     "require": {
-        "craftcms/cms": "^4.0.0"
+        "craftcms/cms": "^5.0.0"
     },
     "autoload": {
         "psr-4": {

@@ -1,5 +1,9 @@
 # Image toolbox Changelog
 
+## 3.0.0 - 2024.04.04
+### Added
+* Added Craft CMS 5 support.
+
 ## 2.3.0 - 2024.04.04
 ### Added
 * Added the `svgFile` method.

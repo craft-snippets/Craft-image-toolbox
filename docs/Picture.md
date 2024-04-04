@@ -161,7 +161,7 @@ Each picture source can have `width` and `height` attribute based on dimensions 
 
 ## Avif and webp variants of images
 
-Why do we go through hassle of generating separate avif and webp version of the image? Webp format can save you 30% to 50% of file size compared to jpg, while avif can decrease file size even 30% more compared to webp. This can mean large increases in the page load time.
+Why do we go through the hassle of generating separate avif and webp version of the image? Webp format can save you 30% to 50% of file size compared to jpg, while avif can decrease file size even 30% more compared to webp. This can mean large increases in the page load time.
 
 Generating avif and webp version of the image by the plugin actually depends on a few things. Avif/webp variants will be outputted along with image in original format if:
 

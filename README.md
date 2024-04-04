@@ -1,10 +1,10 @@
-# Image toolbox plugin for Craft CMS 4.x
+# Image toolbox plugin for Craft CMS 5.x
 
 Image Toolbox is Craft CMS plugin that helps with the use of image transforms in templates.
 
 ## Features
 
-* Automatic creation of **webp** variant of images, with fallback for browsers that don't support this format.
+* Automatic creation of **avif** and **webp** variant of the images, with fallback for browsers that don't support these formats.
 * Automatic creation of placeholder images. Plugin outputs either transformed image or placeholder with size based on image transform, if image is missing.
 * Generating responsive images with multiple variants, displayed on specific breakpoints by using `<picture>` element.
 * [Imager-x](https://plugins.craftcms.com/imager-x) (or old [Imager](https://plugins.craftcms.com/imager)) support - but you can use it with native Craft image transforms as well.
@@ -31,4 +31,3 @@ Click here for [Image toolbox documentation](http://craftsnippets.com/docs/image
 
 * Retina support
 * Applying transform on assets within HTML strings
-* Creating picture elements from multiple image sources
