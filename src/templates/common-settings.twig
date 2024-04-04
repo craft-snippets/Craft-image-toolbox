@@ -241,6 +241,29 @@ function variantComponent() {
         errors: value.getErrors('useWebp'),
     }) }}
 
+
+    {{ forms.selectField({
+        label: "Create the avif variants of the images"|t('search-toolbox'),
+        id: 'useAvif',
+        name: 'useAvif',
+        options: [
+            {
+                'value': 'none',
+                'label': 'Use the global settings'|t('image-toolbox'),
+            },
+            {
+                'value': 'enabled',
+                'label': 'Enabled'|t('image-toolbox'),
+            },
+            {
+                'value': 'disabled',
+                'label': 'Disabled'|t('image-toolbox'),
+            },
+        ],
+        value: value.useAvif,
+        errors: value.getErrors('useAvif'),
+    }) }}
+
     {{ forms.selectField({
         label: 'Add "width" and "height" attributes to the picture'|t('search-toolbox'),
         id: 'useWidthHeight',
@@ -275,7 +298,7 @@ function variantComponent() {
 
                     {# breakpoint type #}
                     {{_self.alpineSelect({
-                        label: 'Breakpont type'|t('app'),
+                        label: 'Breakpoint type'|t('app'),
                         xmodel: 'variant.breakpointType',
                         name: "[variants]['+index+'][breakpointType]",
                         options: [

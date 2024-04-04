@@ -81,6 +81,7 @@ class ImageToolboxService extends Component
 
         // remove not-standard settings
         unset($transformSettings['useWebp']);
+        unset($transformSettings['useAvif']);
         unset($transformSettings['filenamePattern']);
 
         // choose transform method
@@ -232,6 +233,16 @@ class ImageToolboxService extends Component
     }
 
     /**
+     * Checks for Avif support.
+     *
+     * @return bool
+     */
+    private function serverSupportsAvif(): bool
+    {
+        return Craft::$app->getImages()->getSupportsAvif() || ImageToolbox::$plugin->getSettings()->forceAvif;
+    }
+
+    /**
      * Checks if webp version of image can be generated.
      *
      * @param Asset $image
@@ -256,12 +267,12 @@ class ImageToolboxService extends Component
             return false;
         }
 
-        // if we explictly state in trsnaform settings that we dont want to transform it
+        // if we explicitly state in transform settings that we don't want to transform it
         if(isset($transform['useWebp']) && $transform['useWebp'] == false){
             return false;
         }
 
-        // if global settings allow it, server supports webp and iamge is not svg 
+        // if global settings allow it, server supports webp and image is not svg
         if(
             (ImageToolbox::$plugin->getSettings()->useWebp || $overwrite == self::SETTING_ENABLED) && 
             $this->serverSupportsWebp() && 
@@ -272,6 +283,49 @@ class ImageToolboxService extends Component
 
         return false;
     }
+
+    /**
+     * Checks if avif version of image can be generated.
+     *
+     * @param Asset $image
+     * @param array $transform
+     * @return bool
+     */
+    private function canAddAvifSource(Asset $image, array $transform, $overwrite = self::SETTING_NONE): bool
+    {
+
+        // if image is avif already and we dont want to transform it into other format
+        if($image->getMimeType() == 'image/avif' && !isset($transform['format'])){
+            return false;
+        }
+
+        // if we already want avif transform - no need for two avif variants
+        if(isset($transform['format']) && $transform['format'] == 'avif'){
+            return false;
+        }
+
+        // if variant field overwrites it
+        if($overwrite == self::SETTING_DISABLED){
+            return false;
+        }
+
+        // if we explicitly state in transform settings that we don't want to transform it
+        if(isset($transform['useAvif']) && $transform['useAvif'] == false){
+            return false;
+        }
+
+        // if global settings allow it, server supports avif and image is not svg
+        if(
+            (ImageToolbox::$plugin->getSettings()->useAvif || $overwrite == self::SETTING_ENABLED) &&
+            $this->serverSupportsAvif() &&
+            $image->getMimeType() != 'image/svg+xml'
+        ){
+            return true;
+        }
+
+        return false;
+    }
+
 
     private static function normalizeDimensions(int|string|null &$width, int|string|null &$height, $assetWidth, $assetHeight): void
     {
@@ -382,6 +436,11 @@ class ImageToolboxService extends Component
             ];            
         }
 
+        // remove additional options
+        unset($transform['useWebp']);
+        unset($transform['useAvif']);
+        unset($transform['filenamePattern']);
+
         // regular transform
         $transformSettings = new \craft\models\ImageTransform($transform);
         return self::calculateWidthHeight($asset, $transformSettings);
@@ -409,6 +468,26 @@ class ImageToolboxService extends Component
 
             // if we dont want source empty
             if(!is_null($source['transform'])){
+
+                // avif version
+                if($this->canAddAvifSource($image, $source['transform'])){
+                    $settings_avif = array_merge($source['transform'], ['format' => 'avif']);
+
+                    $attrsAvif = [
+                        'media' => $source['media'] ?? null,
+                        'srcset' => $this->getTransformUrl($image, $settings_avif),
+                        'type' => 'image/avif',
+                    ];
+
+                    if(!is_null(self::getWidthHeightAttrs($image, $source['transform']))){
+                        $attrsAvif['width'] = self::getWidthHeightAttrs($image, $source['transform'])['width'];
+                        $attrsAvif['height'] = self::getWidthHeightAttrs($image, $source['transform'])['height'];
+                    }
+
+                    $html_string .= "\n";
+                    $html_string .= Html::tag('source', '', $attrsAvif);
+                }
+
                 // webp version
                 if($this->canAddWebpSource($image, $source['transform'])){
                     $settings_webp = array_merge($source['transform'], ['format' => 'webp']);
@@ -692,6 +771,17 @@ class ImageToolboxService extends Component
             }
         }
 
+        // if use avif
+        $useAvif = self::SETTING_NONE;
+        if(!is_null($variantField)){
+            // field settings
+            $useAvif = $variantField->useAvif;
+            // specific asset
+            if(!is_null($image) && $image->getFieldValue($variantField->handle)['useAvif'] != self::SETTING_NONE){
+                $useWebp = $image->getFieldValue($variantField->handle)['useAvif'];
+            }
+        }
+
         // if use width height
         $useWidthHeight = self::SETTING_NONE;
         if(!is_null($variantField)){
@@ -704,11 +794,11 @@ class ImageToolboxService extends Component
         }
 
         // return
-        $html = $this->getPictureMultiple($sources, $htmlAttributes, $useWebp, $useWidthHeight);
+        $html = $this->getPictureMultiple($sources, $htmlAttributes, $useWebp, $useAvif, $useWidthHeight);
         return $html;
     }
 
-    public function getPictureMultiple(array $sources, array $htmlAttributes, $settingWebp = self::SETTING_NONE, $settingWidthHeight = self::SETTING_NONE): ?\Twig\Markup
+    public function getPictureMultiple(array $sources, array $htmlAttributes, $settingWebp = self::SETTING_NONE, $settingAvif = self::SETTING_NONE, $settingWidthHeight = self::SETTING_NONE): ?\Twig\Markup
     {
         $htmlString = '';
 
@@ -772,6 +862,39 @@ class ImageToolboxService extends Component
             // source markup
             $transfromSettings = $singleSource['transform'];
 
+            // avif version
+            if(
+                !is_null($singleSource['asset']) &&
+                $this->canAddAvifSource($singleSource['asset'], $transfromSettings, $settingAvif)
+            ){
+
+                // force avif
+                $transformAvif = array_merge($transfromSettings, ['format' => 'avif']);
+
+                // transform asset or show placeholder
+                $srcsetAvif = $this->getPlaceholderOrTransform($singleSource['asset'], $transformAvif);
+
+                // html attributes for source
+                $avifSourceAttributes = [
+                    'media' => $mediaBreakpoint,
+                    'srcset' => $srcsetAvif,
+                ];
+
+                // mime type
+                if(!is_null($singleSource['asset'])){
+                    $avifSourceAttributes['type'] = 'image/avif';
+                }
+
+                // width height
+                $avifWidthHeight = self::getWidthHeightAttrs($singleSource['asset'], $transfromSettings, $settingWidthHeight);
+                if(!is_null($avifWidthHeight)){
+                    $avifSourceAttributes['width'] = $avifWidthHeight['width'];
+                    $avifSourceAttributes['height'] = $avifWidthHeight['height'];
+                }
+
+                $htmlString .= $this->getHtmlTag('source', $avifSourceAttributes);
+            }
+
             // webp version
             if(
                 !is_null($singleSource['asset']) && 
@@ -805,7 +928,7 @@ class ImageToolboxService extends Component
                 $htmlString .= $this->getHtmlTag('source', $webpSourceAttributes);
             }
 
-            // non-webp version
+            // non-webp/avif version
             $srcsetRegular = $this->getPlaceholderOrTransform($singleSource['asset'], $transfromSettings);
             $sourceAttributes = [
                 'media' => $mediaBreakpoint,
@@ -999,6 +1122,65 @@ class ImageToolboxService extends Component
         }else{
             return $settings;
         }
+    }
+
+    public function svgFile(string|Asset|null $file, array $attributes, array $options)
+    {
+        $defaultOptions = [
+            'removeFill' => false,
+            'removeStroke' => false,
+            'removeCss' => false,
+            'sanitize' => true,
+            'namespace' => true,
+        ];
+        $options = array_merge($defaultOptions, $options);
+
+        if(is_null($file)){
+            return null;
+        }
+
+        if($file instanceof Asset && $file->extension != 'svg'){
+            return $this->throwException('Asset "' . $file->title . '" with ID ' . $file->id . ' is not svg file.', null);
+        }
+
+        // file path
+        if(is_string($file)){
+            $file = rtrim($file, '.svg');
+            $file .= '.svg';
+            $directory = ImageToolbox::$plugin->getSettings()->svgDirectory;
+            if(!is_null($directory)){
+                $file = $directory . DIRECTORY_SEPARATOR . $file;
+                $file = Craft::getAlias($file);
+            }else{
+                $file = Craft::getAlias('@root') . DIRECTORY_SEPARATOR . $file;
+            }
+            if(!file_exists($file)){
+                return $this->throwException('File with path  "' . $file . '" does not exist.', null);
+            }
+        }
+
+        // sanitaze, namespace, resolve alias
+        $svgHtml = \craft\helpers\Html::svg($file, $options['sanitize'], $options['namespace']);
+
+        // remove fill atribute
+        if($options['removeFill'] == true){
+            $svgHtml = preg_replace('/' . 'fill' . '="[^"]*"/', '', $svgHtml);
+        }
+        if($options['removeStroke'] == true){
+            $svgHtml = preg_replace('/' . 'style' . '="[^"]*"/', '', $svgHtml);
+        }
+        if($options['removeCss'] == true){
+            $svgHtml = preg_replace('/' . 'stroke' . '="[^"]*"/', '', $svgHtml);
+            $svgHtml = preg_replace('/<style\b[^>]*>(.*?)<\/style>/is', '', $svgHtml);
+        }
+
+        // apply html attrs
+        if(!empty($attributes)){
+            $svgHtml = \craft\helpers\Html::modifyTagAttributes($svgHtml, $attributes);
+        }
+
+        $svgHtml = Template::raw($svgHtml);
+        return $svgHtml;
     }
 
     private function throwException($text, $return)

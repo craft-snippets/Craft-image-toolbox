@@ -160,4 +160,9 @@ class ImageToolboxVariable
         return ImageToolbox::getInstance()->imageToolbox->getPictureFromAsset($image, $variantsFieldHandle, $htmlAttributes);
     }
 
+    public function svgFile(string|Asset|null $file, array $attributes, array $options = []): ?\Twig\Markup
+    {
+        return ImageToolbox::getInstance()->imageToolbox->svgFile($file, $attributes, $options);
+    }
+
 }

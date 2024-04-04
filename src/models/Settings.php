@@ -25,6 +25,8 @@ class Settings extends Model
 
     public $useWebp = true;
     public $forceWebp = false;
+    public $useAvif = true;
+    public $forceAvif = false;
     public $useImager = true;
     public $usePlaceholders = true;
     public $placeholderClass = 'is-placeholder';
@@ -41,4 +43,5 @@ class Settings extends Model
 
     public $suppressExceptions = false;
     public $useWidthHeightAttributes = false;
+    public $svgDirectory = null;
 }
