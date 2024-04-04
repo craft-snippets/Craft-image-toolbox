@@ -1,5 +1,10 @@
 # Image toolbox Changelog
 
+## 2.3.0 - 2024.04.04
+### Added
+* Added the `svgFile` method.
+* Added the automatic avif image variants generation.
+
 ## 2.2.2 - 2023.07.18
 ### Added
 * Added the PRO edition of the plugin. This edition adds "Image variants" field which allows admins to define picture configuration in the control panel. Field is assigned to the asset source and picture configuration can be set for the whole asset source (using the field settings), or for the specific asset (using the field values).
