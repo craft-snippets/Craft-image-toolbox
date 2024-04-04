@@ -3,7 +3,9 @@
 Place these settings in `config/image-toolbox.php` file.
 
 * `useWebp` - if webp version of image should automatically be generated. Default: `true`.
-* `forceWebp` - if webp version of image should be generated even if Craft detects lack of webp support on server. Useful if Craft somehow wrongly detects lack of webp support. Default: `false`.
+* `forceWebp` - if webp version of image should be generated even if Craft detects lack of webp support on the server. Useful if Craft somehow wrongly detects lack of webp support. Default: `false`.
+* `useAvif` - if avif version of image should automatically be generated. Default: `true`.
+* `forceAvif` - if avif version of image should be generated even if Craft detects lack of avif support on the server. Useful if Craft somehow wrongly detects lack of avif support. Default: `false`.
 * `useImager` - if Imager-x or Imager should be used for transforms (assuming one of these plugins is installed). Default: `true`.
 * `useImagerForSvg` - if imager should be used also for SVG images. Default: `false`.
 * `transformLayouts` - pre-defined transform settings. Read more in "Transform layouts" section of documentation.
@@ -16,6 +18,7 @@ Place these settings in `config/image-toolbox.php` file.
 * `filePlaceholderBackgroundOpacity` - opacity of background color used when generating placeholder files with placeholder **file mode**. Possible values: `1` - `100`.
 * `filePlaceholderDirectory` - path where generated placeholder files will be outputted, relative to the project root. 
 * `placeholderUrl` - URL of placeholder image, used in **url mode**. `{width}` and `{height}` in URL will be replaced with width and height of placeholder.
+* `svgDirectory` - file directory from where SVG images should be loaded when `svgFile` method is used with file path.
 * `suppressExceptions` - if errors should be thrown when passing incorrect parameters to the functions or if methods should fail siliently, not outputting anything at all.
 
 Deprecated:

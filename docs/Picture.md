@@ -4,7 +4,7 @@
 
 All images outputted by the plugin are using `<picture>` HTML element instead of just regular `<img>`. On the surface, `<picture>` works same as standard `<img>` - but its main feature is displaying multiple variants of image, in the separate `<source>` tags. One of these sources can then be selected by brower based on breakpoint values set im `media` attribute or specific image format support. 
 
-Image Toolbox uses this feature of `<picture>` for automatic generation of [webp](https://css-tricks.com/using-webp-images/) version of images or using different image transforms for specific breakpoints.
+Image Toolbox uses this feature of `<picture>` for automatic generation of [webp](https://css-tricks.com/using-webp-images/) and avif versions of the images or using different image transforms for specific breakpoints.
 
 ## pictureMultiple() method
 
@@ -43,17 +43,18 @@ This is the generated HTML code.
 
 ```html
 <picture>
-<source type="image/jpeg" srcset="http://website.com/uploads/_200x500_crop_center-center_none/image1.webp">
+<source type="image/avif" srcset="http://website.com/uploads/_200x500_crop_center-center_none/image1.avif">
+<source type="image/webp" srcset="http://website.com/uploads/_200x500_crop_center-center_none/image1.webp">
 <source type="image/jpeg" srcset="http://website.com/uploads/_200x500_crop_center-center_none/image1.jpg">
 <img src="http://website.com/uploads/_200x500_crop_center-center_none/image1.jpg" class="some-class">
 </picture>
 ```
 
-As you can see, `<picture>` has two sources - webp source and jpg source. Browsers will choose the proper version depending on their [webp support](https://caniuse.com/#feat=webp) and ignore other one, so you don't have to worry about downloading redundant versions of image. 
+As you can see, `<picture>` has three sources - webp source, avif source and jpg source. Browsers will choose the proper version depending on their [webp support](https://caniuse.com/#feat=webp) and ignore other one, so you don't have to worry about downloading redundant versions of image. 
 
 For the browsers that don't [support picture element](https://caniuse.com/#feat=picture) - there is also fallback `<img>` tag inside. This tag is also important because we need to use it to apply HTMl attributes such as class to our image. We cannot do that directly on the `<picture>`.
 
-Note that you can omit `transform` settings, if you want to only use webp variant generation functionality of the plugin, without transforming source image in any other way.
+Note that you can omit `transform` settings, if you want to only use webp/avif variant generation functionality of the plugin, without transforming source image in any other way.
 
 ## Picture with multiple breakpoint variants
 
@@ -103,14 +104,16 @@ As you can see, each variant contains:
 * transform settings.
 * media query value defining when this source should be shown. We can use `media` key for explicit media query.
 
-We also added the third param to the `pictureMultiple()` method - `commonTransformSettings`. These are transform settings that will be applied to all variants. This parameter is optional and can be used to avoid repeating specific settings for each variants. They can be stored in the single array instead.
+We also added the third param to the `pictureMultiple()` method - `commonTransformSettings`. These are transform settings that will be applied to all variants. This parameter is optional and can be used to avoid repeating specific settings for each variant. They can be stored in the single array instead.
 
-Here's the generated HTML. While we defined two variants, this `<picture>` has four sources, because each variants will have both webp and regular format `<source>`.
+Here's the generated HTML. While we defined two variants, this `<picture>` has six sources, because each variant will have avif, webp and regular format `<source>`.
 
 ```html
 <picture>
+    <source type="image/avif" srcset="http://website.com/uploads/_200x500_crop_center-center_none/image1.avif" media="(min-width: 1024px)">
 <source type="image/jpeg" srcset="http://website.com/uploads/_200x500_crop_center-center_none/image1.webp" media="(min-width: 1024px)">
 <source type="image/jpeg" srcset="http://website.com/uploads/_200x500_crop_center-center_none/image1.jpg" media="(min-width: 1024px)">
+<source type="image/avif" srcset="http://website.com/uploads/_400x500_fit_center-center_none/image2.avif" media="(max-width: 1023px)">
 <source type="image/jpeg" srcset="http://website.com/uploads/_400x500_fit_center-center_none/image2.webp" media="(max-width: 1023px)">
 <source type="image/jpeg" srcset="http://website.com/uploads/_400x500_fit_center-center_none/image2.jpg" media="(max-width: 1023px)">
 <img src="http://website.com/uploads/_200x500_crop_center-center_none/image1.jpg" class="some-class">
@@ -156,21 +159,21 @@ If you want your image to not display anything on specific media query, omit `tr
 
 Each picture source can have `width` and `height` attribute based on dimensions of transformed image for this source. This can be useful for some lazy loading solutions, althought by default this functionality is disabled. You can enable it by settings `useWidthHeightAttributes` to `true` in plugin settings.
 
-## Webp variants of images
+## Avif and webp variants of images
 
-Why do we go through hassle of generating separate webp version of image? Tahts because using webp format can save you 30% to 50% of file size compared to jpg. This can mean large increases in the page load time.
+Why do we go through hassle of generating separate avif and webp version of the image? Webp format can save you 30% to 50% of file size compared to jpg, while avif can decrease file size even 30% more compared to webp. This can mean large increases in the page load time.
 
-Generating **webp** version of image by the plugin actually depends on a few things. Webp variant will be outputted along with image in original format if:
+Generating avif and webp version of the image by the plugin actually depends on a few things. Avif/webp variants will be outputted along with image in original format if:
 
 * Provided image is not in SVG format. It would not make much sense to transform SVG which is a vector graphic format into webp which is used for raster images.
-* Our server supports webp image transforms. Webp support can be tested by using Craft `craft.app.images.supportsWebP()` method in your Twig templates - same method that Image toolbox uses internally. If Craft somehow wrongly detects lack of webp support, while server actually does suport it, webp generation can be forced by setting `forceWebp` to `true` in plugin config.
-* Our source image is not already webp - no need to create second webp variant of image that is already webp. If however we want to transform webp to other format, both webp and other format variants will be generated.
-* We didn't disabled webp generation for this specific picture by adding `useWebp` set to `false` in transform setting. 
-* We didn't disabled webp generation globally in plugin settings file using `useWebp` setting.
+* Server supports avif/webp image transforms. Avif support can be tested by using Craft `craft.app.images.supportsAvif()` method in your Twig templates, while webp with `craft.app.images.supportsWebP()`. These are the methods that Image toolbox uses internally. If Craft somehow wrongly detects lack of avif/webp support while server actually does support it, avif/webp generation can be forced by setting `forceAvif` to `true` or `forceWebp` to `true` in the plugin config.
+* Our source image is not already avif/webp - no need to create duplicate avif/webp variant of image that is already avif/webp. If however we want to transform avif/webp to other format, both avif/webp and other format variants will be generated.
+* We didn't disable avif/webp generation for this specific picture by adding `useAvif` set to `false` or `useWebp` set to `false` in the transform setting. 
+* We didn't disable avif/webp generation globally in the plugin settings using `useAvif` or `useWebp` setting.
 
 ## Deprecated methods
 
-This methods were used before `pictureMultiple()` was introduced. They are kept for the sake of backwards compatibility. They do not allow using separate assets on multiple breakpoints - all breakpoints share the same asset. 
+These methods were used before `pictureMultiple()` was introduced. They are kept for the sake of backwards compatibility. They do not allow using separate assets on multiple breakpoints - all breakpoints share the same asset. 
 
 Please note that in case of the missing asset, when placeholder is generated, `<picture>` outputted by these methods will have `is-placeholder` CSS class applied. This behaviour is missing from `pictureMultuple()` method, since it can use multiple assets, some of which are missing and some of which are not. Placeholder CSS class can be modified using `placeholderClass` config setting.
 
@@ -216,7 +219,7 @@ Here's how it is used:
 
 As you can see, `sources` object contains multiple image transforms. Key of a single element of object is a string containing breakpoint on which specific transform should be used. Corresponding value is an array of image transform settings.
 
-If your multiple tranform settings used for breakpoints have many identical values (for example same `mode`, `format`, `position` or `quality`), you can pass to `pictureMedia` third parameter containing these common values. For example, this...
+If your transform settings used for multiple breakpoints have many identical values (for example same `mode`, `format`, `position` or `quality`), you can pass third parameter containing these common values to `pictureMedia()`. For example, this...
 
 ```twig
 {% set transforms = {
@@ -236,7 +239,7 @@ If your multiple tranform settings used for breakpoints have many identical valu
 {{craft.images.pictureMedia(someAsset, transforms, common)}}
 ```
 
-...is same as this:
+...is the same as this:
 
 ```twig
 {% set transforms = {
@@ -258,7 +261,7 @@ If your multiple tranform settings used for breakpoints have many identical valu
 {{craft.images.pictureMedia(someAsset, transforms)}}
 ```
 
-Note that if you use `null` as transform value, source for this transform will be generated as transparent pixel. This can be used if we dont want to display image at all on the specific breakpoint.
+Note that if you use `null` as transform value, source for this transform will be generated as transparent pixel. This can be used if we don't want to display image at all on the specific breakpoint.
 
 ### pictureMax() and pictureMin() methods
 

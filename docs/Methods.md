@@ -19,6 +19,8 @@ For detailed information about each method, please visit [Plugin functionality](
 
 * `craft.images.placeholder(transform)` - generates image placeholder based `width` and `height` settings.
 
+* `craft.images.svgFile(file, htmlAttributes, options)` - outputs markup of SVG image. `file` attribute can be Asset object or file path.
+
 Deprecated methods:
 
 * `craft.images.picture(image, transform, htmlAttributes)` - generates `<picture>` element.
