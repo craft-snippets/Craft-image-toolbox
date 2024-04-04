@@ -1124,16 +1124,7 @@ class ImageToolboxService extends Component
         }
     }
 
-    private function throwException($text, $return)
-    {
-        if(ImageToolbox::$plugin->getSettings()->suppressExceptions == true){
-            return $return;
-        }else{
-            throw new RuntimeError($text);
-        }  
-    }
-
-    public function svgFile(string $filePath, array $attributes, array $options)
+    public function svgFile(string|Asset|null $file, array $attributes, array $options)
     {
         $defaultOptions = [
             'removeFill' => false,
@@ -1144,17 +1135,32 @@ class ImageToolboxService extends Component
         ];
         $options = array_merge($defaultOptions, $options);
 
-        // file path
-        $directory = ImageToolbox::$plugin->getSettings()->svgDirectory;
-        if(!is_null($directory)){
-            $filePath = $directory . DIRECTORY_SEPARATOR . $filePath;
-        }else{
-            $filePath = Craft::getAlias('@root') . DIRECTORY_SEPARATOR . $filePath;
+        if(is_null($file)){
+            return null;
         }
-        $filePath .= '.svg';
+
+        if($file instanceof Asset && $file->extension != 'svg'){
+            return $this->throwException('Asset "' . $file->title . '" with ID ' . $file->id . ' is not svg file.', null);
+        }
+
+        // file path
+        if(is_string($file)){
+            $file = rtrim($file, '.svg');
+            $file .= '.svg';
+            $directory = ImageToolbox::$plugin->getSettings()->svgDirectory;
+            if(!is_null($directory)){
+                $file = $directory . DIRECTORY_SEPARATOR . $file;
+                $file = Craft::getAlias($file);
+            }else{
+                $file = Craft::getAlias('@root') . DIRECTORY_SEPARATOR . $file;
+            }
+            if(!file_exists($file)){
+                return $this->throwException('File with path  "' . $file . '" does not exist.', null);
+            }
+        }
 
         // sanitaze, namespace, resolve alias
-        $svgHtml = \craft\helpers\Html::svg($filePath, $options['sanitize'], $options['namespace']);
+        $svgHtml = \craft\helpers\Html::svg($file, $options['sanitize'], $options['namespace']);
 
         // remove fill atribute
         if($options['removeFill'] == true){
@@ -1175,6 +1181,15 @@ class ImageToolboxService extends Component
 
         $svgHtml = Template::raw($svgHtml);
         return $svgHtml;
+    }
+
+    private function throwException($text, $return)
+    {
+        if(ImageToolbox::$plugin->getSettings()->suppressExceptions == true){
+            return $return;
+        }else{
+            throw new RuntimeError($text);
+        }  
     }
 
 }
