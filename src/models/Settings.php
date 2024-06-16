@@ -25,7 +25,7 @@ class Settings extends Model
 
     public $useWebp = true;
     public $forceWebp = false;
-    public $useAvif = true;
+    public $useAvif = false;
     public $forceAvif = false;
     public $useImager = true;
     public $usePlaceholders = true;

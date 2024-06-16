@@ -1,5 +1,10 @@
 # Image toolbox Changelog
 
+## 3.0.1 - 2024.06.16
+### Fixed
+* Avif generation is now disabled by default.
+* svgFile() function - HTML attributes array parameter is now optional.
+
 ## 3.0.0 - 2024.04.04
 ### Added
 * Added Craft CMS 5 support.

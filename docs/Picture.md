@@ -163,13 +163,14 @@ Each picture source can have `width` and `height` attribute based on dimensions 
 
 Why do we go through the hassle of generating separate avif and webp version of the image? Webp format can save you 30% to 50% of file size compared to jpg, while avif can decrease file size even 30% more compared to webp. This can mean large increases in the page load time.
 
+
 Generating avif and webp version of the image by the plugin actually depends on a few things. Avif/webp variants will be outputted along with image in original format if:
 
 * Provided image is not in SVG format. It would not make much sense to transform SVG which is a vector graphic format into webp which is used for raster images.
 * Server supports avif/webp image transforms. Avif support can be tested by using Craft `craft.app.images.supportsAvif()` method in your Twig templates, while webp with `craft.app.images.supportsWebP()`. These are the methods that Image toolbox uses internally. If Craft somehow wrongly detects lack of avif/webp support while server actually does support it, avif/webp generation can be forced by setting `forceAvif` to `true` or `forceWebp` to `true` in the plugin config.
 * Our source image is not already avif/webp - no need to create duplicate avif/webp variant of image that is already avif/webp. If however we want to transform avif/webp to other format, both avif/webp and other format variants will be generated.
 * We didn't disable avif/webp generation for this specific picture by adding `useAvif` set to `false` or `useWebp` set to `false` in the transform setting. 
-* We didn't disable avif/webp generation globally in the plugin settings using `useAvif` or `useWebp` setting.
+* We didn't disable avif/webp generation globally in the plugin settings using `useAvif` or `useWebp` setting. **Please note that Avif variant generation is disabled by default, while Webp is enabled by default**.
 
 ## Deprecated methods
 
