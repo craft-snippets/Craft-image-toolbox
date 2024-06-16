@@ -1,5 +1,11 @@
 # Image toolbox Changelog
 
+
+## 2.3.1 - 2024.06.16
+### Fixed
+* Avif generation is now disabled by default.
+* svgFile() function - HTML attributes array parameter is now optional.
+
 ## 2.3.0 - 2024.04.04
 ### Added
 * Added the `svgFile` method.
